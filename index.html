@@ -1,0 +1,2956 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIPAS — Sistem Informasi Pengelolaan Sampah Donggala</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a3c2e;
+    --green-mid: #2d6a4f;
+    --green-bright: #40916c;
+    --green-light: #74c69d;
+    --green-pale: #b7e4c7;
+    --lime: #95d5b2;
+    --cream: #f8f5ef;
+    --warm-white: #fdfcfa;
+    --brown: #6b4f3a;
+    --orange-accent: #e07a3a;
+    --text-dark: #1a1a1a;
+    --text-mid: #4a4a4a;
+    --text-light: #888;
+    --border: rgba(45,106,79,0.15);
+    --shadow: 0 4px 24px rgba(26,60,46,0.12);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAVBAR */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 5%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(248,245,239,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo-icon {
+    width: 38px; height: 38px;
+    background: var(--green-mid);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .nav-logo-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--green-deep);
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo-text span {
+    font-weight: 300;
+    color: var(--green-bright);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-mid);
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .nav-links a:hover {
+    background: var(--green-pale);
+    color: var(--green-deep);
+  }
+
+  /* WHATSAPP FLOAT */
+  .wa-float {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .wa-btn {
+    width: 58px; height: 58px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.45);
+    text-decoration: none;
+    transition: all 0.2s;
+    animation: waPulse 2.5s ease-in-out infinite;
+  }
+
+  .wa-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.6); }
+
+  @keyframes waPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.45); }
+    50% { box-shadow: 0 4px 32px rgba(37,211,102,0.75); }
+  }
+
+  .wa-tooltip {
+    background: #1a3c2e;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  .wa-float:hover .wa-tooltip { opacity: 1; }
+
+  /* ARMADA */
+  #armada { background: white; }
+
+  .armada-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    margin-top: 40px;
+  }
+
+  .armada-card {
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .armada-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--green-bright);
+    border-radius: 4px 4px 0 0;
+  }
+
+  .armada-card.inactive::before { background: #ccc; }
+  .armada-card.inactive { opacity: 0.7; }
+
+  .armada-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--green-bright);
+  }
+
+  .armada-icon { font-size: 2rem; margin-bottom: 4px; }
+
+  .armada-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .armada-jumlah {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--green-mid);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .armada-card.inactive .armada-jumlah { color: #aaa; }
+
+  .armada-unit { font-size: 0.72rem; color: var(--text-light); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+
+  .armada-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .armada-spec {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+  }
+
+  .armada-spec-label { color: var(--text-light); }
+  .armada-spec-val { color: var(--text-dark); font-weight: 600; font-family: 'Space Mono', monospace; }
+
+  .armada-tps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .armada-tps-card {
+    background: linear-gradient(135deg, #e8f5ee, #d8f3dc);
+    border: 1.5px solid var(--green-pale);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .armada-tps-icon { font-size: 2rem; }
+
+  .armada-tps-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--green-mid);
+    font-family: 'Space Mono', monospace;
+    line-height: 1;
+  }
+
+  .armada-tps-label { font-size: 0.78rem; color: var(--text-mid); font-weight: 600; }
+  .armada-tps-sub { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
+
+  .nav-cta {
+    background: var(--green-mid) !important;
+    color: white !important;
+    padding: 8px 20px !important;
+  }
+
+  .nav-cta:hover {
+    background: var(--green-deep) !important;
+    color: white !important;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    padding: 70px 5% 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    background: linear-gradient(160deg, #e8f5ee 0%, var(--cream) 60%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -120px; top: -80px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(116,198,157,0.18) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.03); }
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid var(--green-pale);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--green-bright);
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 4vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--green-deep);
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--green-bright);
+    position: relative;
+  }
+
+  .hero h1 em::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 0; right: 0;
+    height: 3px;
+    background: var(--green-light);
+    border-radius: 2px;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    color: var(--text-mid);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 36px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--green-mid);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover {
+    background: var(--green-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(45,106,79,0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--green-mid);
+    border: 2px solid var(--green-pale);
+    padding: 12px 26px;
+    border-radius: 12px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--green-bright);
+    background: var(--green-pale);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 28px;
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hero-stat-val {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--green-deep);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: -1px;
+  }
+
+  .hero-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+
+  .hero-visual {
+    position: relative;
+    z-index: 1;
+    animation: fadeSlideUp 0.8s ease 0.2s both;
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-map-card {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--shadow), 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+  }
+
+  .map-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .map-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .map-live {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--green-bright);
+    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .map-live::before {
+    content: '';
+    width: 7px; height: 7px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  .map-placeholder {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #e8f5ee, #d8f3dc);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .map-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      rgba(116,198,157,0.07) 20px,
+      rgba(116,198,157,0.07) 40px
+    );
+  }
+
+  .map-markers { position: absolute; inset: 0; }
+
+  .map-dot {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .map-dot::after {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--green-mid);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(45,106,79,0.2);
+  }
+
+  .map-dot.truck::after { background: var(--orange-accent); box-shadow: 0 0 0 3px rgba(224,122,58,0.2); }
+
+  .route-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .route-chip {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .route-chip-icon { font-size: 1.1rem; }
+
+  .route-chip-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .route-chip-label {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+
+  .route-chip-val {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .float-badge {
+    position: absolute;
+    background: white;
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 8px 32px rgba(26,60,46,0.15);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: floatBadge 4s ease-in-out infinite;
+  }
+
+  @keyframes floatBadge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .float-badge-1 { top: -16px; right: -16px; animation-delay: 0s; }
+  .float-badge-2 { bottom: -16px; left: -16px; animation-delay: 2s; }
+  .float-badge-icon { font-size: 1.3rem; }
+  .float-badge-text { font-size: 0.78rem; font-weight: 600; color: var(--text-dark); }
+  .float-badge-sub { font-size: 0.68rem; color: var(--text-light); }
+
+  /* SECTIONS */
+  section { padding: 80px 5%; }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--green-bright);
+    margin-bottom: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: var(--green-deep);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+
+  .section-sub {
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    line-height: 1.7;
+    max-width: 540px;
+  }
+
+  /* NERACA */
+  #neraca { background: white; }
+
+  .neraca-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .neraca-card {
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    border: 1.5px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .neraca-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .neraca-card.primary {
+    background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+    border-color: transparent;
+    color: white;
+  }
+
+  .neraca-card.warning {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-color: #ffcc80;
+  }
+
+  .neraca-card.success {
+    background: linear-gradient(135deg, #e8f5ee, #d8f3dc);
+    border-color: var(--green-pale);
+  }
+
+  .neraca-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.75;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .neraca-value {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .neraca-card.primary .neraca-value { color: var(--lime); }
+  .neraca-card.warning .neraca-value { color: #e07a3a; }
+  .neraca-card.success .neraca-value { color: var(--green-mid); }
+
+  .neraca-sub {
+    font-size: 0.8rem;
+    opacity: 0.65;
+    line-height: 1.5;
+  }
+
+  .neraca-bar {
+    margin-top: 16px;
+    height: 6px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .neraca-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--lime);
+    transition: width 1s ease;
+  }
+
+  .neraca-card.warning .neraca-bar { background: rgba(224,122,58,0.15); }
+  .neraca-card.warning .neraca-bar-fill { background: var(--orange-accent); }
+  .neraca-card.success .neraca-bar { background: rgba(45,106,79,0.15); }
+  .neraca-card.success .neraca-bar-fill { background: var(--green-mid); }
+
+  /* JADWAL */
+  #jadwal { background: var(--cream); }
+
+  .jadwal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .jadwal-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: white;
+  }
+
+  .jadwal-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--green-bright);
+    border-radius: 4px 0 0 4px;
+  }
+
+  .jadwal-card:hover {
+    border-color: var(--green-bright);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .jadwal-card.today {
+    border-color: var(--green-bright);
+    background: linear-gradient(135deg, rgba(116,198,157,0.05), transparent);
+  }
+
+  .jadwal-card.today::before { background: var(--orange-accent); }
+
+  .jadwal-hari {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .jadwal-day-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .jadwal-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: var(--green-pale);
+    color: var(--green-deep);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .jadwal-badge.today-badge {
+    background: var(--orange-accent);
+    color: white;
+  }
+
+  .jadwal-wilayah {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .wilayah-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+  }
+
+  .wilayah-dot {
+    width: 6px; height: 6px;
+    background: var(--green-light);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .jadwal-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+
+  .filter-btn {
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--green-mid);
+    color: white;
+    border-color: var(--green-mid);
+  }
+
+  /* ADUAN */
+  #aduan {
+    background: linear-gradient(160deg, var(--green-deep) 0%, #1e4d38 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #aduan::before {
+    content: '';
+    position: absolute;
+    right: -200px; bottom: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(116,198,157,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  #aduan .section-label { color: var(--lime); }
+  #aduan .section-title { color: white; }
+  #aduan .section-sub { color: rgba(255,255,255,0.65); }
+
+  .aduan-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 60px;
+    align-items: start;
+    margin-top: 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .aduan-info { display: flex; flex-direction: column; gap: 24px; }
+
+  .aduan-feature { display: flex; align-items: flex-start; gap: 16px; }
+
+  .aduan-feature-icon {
+    width: 44px; height: 44px;
+    background: rgba(116,198,157,0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .aduan-feature-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .aduan-feature-desc {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+  }
+
+  .aduan-form {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 32px;
+    backdrop-filter: blur(10px);
+  }
+
+  .form-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.3px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    outline: none;
+  }
+
+  .form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.3); }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--green-light);
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 0 0 3px rgba(116,198,157,0.15);
+  }
+
+  .form-select option { background: var(--green-deep); color: white; }
+  .form-textarea { resize: vertical; min-height: 90px; }
+
+  .upload-area {
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.8rem;
+  }
+
+  .upload-area:hover {
+    border-color: var(--green-light);
+    background: rgba(116,198,157,0.05);
+    color: var(--green-light);
+  }
+
+  .upload-area .upload-icon { font-size: 1.8rem; margin-bottom: 8px; }
+
+  .form-submit {
+    width: 100%;
+    background: var(--green-bright);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .form-submit:hover {
+    background: var(--lime);
+    color: var(--green-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(116,198,157,0.35);
+  }
+
+  .form-submit.loading { opacity: 0.7; cursor: not-allowed; }
+
+  /* TRACKING */
+  #tracking { background: white; }
+
+  .tracking-container {
+    max-width: 600px;
+    margin: 40px auto 0;
+  }
+
+  .tracking-input-wrap {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .tracking-input {
+    flex: 1;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .tracking-input:focus {
+    border-color: var(--green-bright);
+    box-shadow: 0 0 0 3px rgba(64,145,108,0.12);
+  }
+
+  .tracking-result {
+    background: var(--cream);
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 1.5px solid var(--border);
+    display: none;
+  }
+
+  .tracking-result.show { display: block; animation: fadeSlideUp 0.3s ease; }
+
+  .tracking-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .tracking-id {
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--text-light);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .status-badge.proses { background: #fff3e0; color: #e07a3a; }
+  .status-badge.selesai { background: #e8f5ee; color: var(--green-mid); }
+  .status-badge.pending { background: #f5f5f5; color: #888; }
+
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+
+  .timeline-item {
+    display: flex;
+    gap: 16px;
+    padding-bottom: 24px;
+    position: relative;
+  }
+
+  .timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 15px; top: 28px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-item.done::before { background: var(--green-light); }
+
+  .timeline-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .timeline-item.done .timeline-dot { background: var(--green-bright); color: white; }
+  .timeline-item.active .timeline-dot { background: var(--orange-accent); color: white; animation: pulse 1.5s infinite; }
+
+  .timeline-content { flex: 1; }
+
+  .timeline-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+
+  .timeline-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* EDUKASI */
+  #edukasi { background: var(--cream); }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .info-card {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    transition: all 0.2s;
+    cursor: pointer;
+    background: white;
+  }
+
+  .info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--green-bright);
+  }
+
+  .info-card-img {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .info-card-img.organic { background: linear-gradient(135deg, #d8f3dc, #b7e4c7); }
+  .info-card-img.anorganic { background: linear-gradient(135deg, #cce5ff, #a8d5ff); }
+  .info-card-img.b3 { background: linear-gradient(135deg, #ffe5e5, #ffcccc); }
+  .info-card-img.recycle { background: linear-gradient(135deg, #fff3cd, #ffe5a0); }
+  .info-card-img.program { background: linear-gradient(135deg, #e8d5ff, #d0b0ff); }
+
+  .info-card-body { padding: 18px; }
+
+  .info-card-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--green-bright);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .info-card-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+
+  .info-card-desc {
+    font-size: 0.78rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* STATISTIK */
+  #statistik {
+    background: var(--green-deep);
+    color: white;
+  }
+
+  #statistik .section-label { color: var(--lime); }
+  #statistik .section-title { color: white; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+  }
+
+  .stat-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    transition: all 0.2s;
+  }
+
+  .stat-card:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(116,198,157,0.3);
+  }
+
+  .stat-icon { font-size: 2rem; margin-bottom: 16px; }
+
+  .stat-number {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--lime);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: -2px;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+  }
+
+  .stat-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .stat-trend.up { color: var(--lime); }
+  .stat-trend.down { color: #ff8a80; }
+
+  /* ANALISIS */
+  #analisis { background: white; }
+
+  .analisis-controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .analisis-controls .form-select {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text-dark);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+    min-width: 240px;
+  }
+
+  .analisis-controls .form-select:focus {
+    border-color: var(--green-bright);
+    box-shadow: 0 0 0 3px rgba(64,145,108,0.12);
+  }
+
+  .analisis-controls .form-select option { color: var(--text-dark); }
+
+  #analisis-output {
+    margin-top: 28px;
+    background: var(--cream);
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 1.5px solid var(--border);
+  }
+
+  #analisis-output h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--green-deep);
+    margin-bottom: 16px;
+  }
+
+  .analisis-bars { display: flex; flex-direction: column; gap: 14px; }
+
+  .analisis-bar-item { display: flex; flex-direction: column; gap: 6px; }
+
+  .analisis-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .analisis-bar-track {
+    height: 10px;
+    background: rgba(45,106,79,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .analisis-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    background: var(--green-bright);
+    transition: width 0.8s ease;
+  }
+
+  .analisis-bar-fill.warning { background: var(--orange-accent); }
+  .analisis-bar-fill.danger { background: #e53935; }
+
+  /* ANCAMAN */
+  #ancaman { background: var(--cream); }
+  #ancaman .section-label { color: var(--green-bright); }
+
+  /* TPA */
+  #tpa { background: white; }
+
+  .tpa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .tpa-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    background: white;
+    transition: all 0.2s;
+  }
+
+  .tpa-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+    border-color: var(--green-bright);
+  }
+
+  .tpa-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tpa-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--green-deep);
+  }
+
+  .tpa-status {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .tpa-status.active {
+    background: var(--green-pale);
+    color: var(--green-deep);
+  }
+
+  .tpa-status.renovation {
+    background: #fff3e0;
+    color: var(--orange-accent);
+  }
+
+  .tpa-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+  }
+
+  .tpa-detail-icon { font-size: 1rem; flex-shrink: 0; }
+
+  .tpa-anggaran {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--cream);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tpa-anggaran-label {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+
+  .tpa-anggaran-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--green-mid);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* FOOTER */
+  footer {
+    background: #111;
+    color: white;
+    padding: 60px 5% 30px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+
+  .footer-brand p {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.8;
+    margin-top: 12px;
+    max-width: 260px;
+  }
+
+  .footer-col h4 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .footer-col a {
+    display: block;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+
+  .footer-col a:hover { color: var(--green-light); }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--green-deep);
+    color: white;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: #c0392b; }
+
+  .skeleton {
+    background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+    .hero p { max-width: 100%; }
+    .hero-actions { justify-content: center; }
+    .hero-stats { justify-content: center; }
+    .aduan-container { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .neraca-grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    nav .nav-links { display: none; }
+    .ham-btn { display: flex !important; }
+  }
+
+  .ham-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    z-index: 200;
+  }
+  .ham-btn span {
+    display: block;
+    width: 24px; height: 2.5px;
+    background: var(--green-deep);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  #navMobileMenu {
+    display: none;
+    position: fixed;
+    top: 70px; left: 0; right: 0;
+    background: rgba(248,245,239,0.97);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 5%;
+    z-index: 99;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 8px 32px rgba(26,60,46,0.12);
+  }
+  #navMobileMenu.open { display: flex; }
+  #navMobileMenu a {
+    text-decoration: none;
+    color: var(--text-mid);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-radius: 10px;
+    transition: all 0.2s;
+  }
+  #navMobileMenu a:hover { background: var(--green-pale); color: var(--green-deep); }
+  #navMobileMenu .nav-cta {
+    background: var(--green-mid);
+    color: white !important;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon">♻️</div>
+    <div class="nav-logo-text">SIPAS <span>Donggala</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#neraca">Neraca Sampah</a></li>
+    <li><a href="#jadwal">Jadwal</a></li>
+    <li><a href="#armada">🚛 Armada</a></li>
+    <li><a href="#tpa">Profil TPA</a></li>
+    <li><a href="#statistik">Statistik</a></li>
+    <li><a href="#aduan" class="nav-cta">📋 Buat Aduan</a></li>
+  </ul>
+  <button class="ham-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="navMobileMenu">
+  <a href="#neraca" onclick="toggleMobileMenu()">📊 Neraca Sampah</a>
+  <a href="#jadwal" onclick="toggleMobileMenu()">📅 Jadwal Pengangkutan</a>
+  <a href="#armada" onclick="toggleMobileMenu()">🚛 Armada & Sarana</a>
+  <a href="#tpa" onclick="toggleMobileMenu()">🏭 Profil TPA</a>
+  <a href="#statistik" onclick="toggleMobileMenu()">📈 Statistik</a>
+  <a href="#edukasi" onclick="toggleMobileMenu()">📚 Edukasi</a>
+  <a href="#aduan" class="nav-cta" onclick="toggleMobileMenu()">📋 Buat Pengaduan</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div style="animation: fadeSlideUp 0.7s ease both;">
+    <div class="hero-badge">🟢 UPT Persampahan Kabonga Besar · Aktif</div>
+    <h1>Pengelolaan Sampah<br>Kabupaten <em>Donggala</em></h1>
+    <p>Platform informasi pengelolaan sampah terpadu Dinas Lingkungan Hidup Kabupaten Donggala — melayani pengaduan, jadwal pengangkutan, dan pemantauan kinerja persampahan secara real-time.</p>
+    <div class="hero-actions">
+      <a href="#aduan" class="btn-primary">📋 Buat Pengaduan</a>
+      <a href="#neraca" class="btn-outline">📊 Neraca Sampah</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-val">154,15</span>
+        <span class="hero-stat-label">Ton/Hari Timbulan</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">25,26%</span>
+        <span class="hero-stat-label">Tingkat Pengelolaan</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">3</span>
+        <span class="hero-stat-label">Bank Sampah Unit</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div style="position:relative;">
+      <div class="float-badge float-badge-1">
+        <span class="float-badge-icon">🚛</span>
+        <div>
+          <div class="float-badge-text">UPT Persampahan Aktif</div>
+          <div class="float-badge-sub">Kec. Banawa &amp; Banawa Tengah</div>
+        </div>
+      </div>
+      <div class="hero-map-card">
+        <div class="map-header">
+          <span class="map-title">📍 Cakupan Layanan TPA Kabonga Besar</span>
+          <span class="map-live">OPERASIONAL</span>
+        </div>
+        <div class="map-placeholder">
+          🗺️
+          <div class="map-markers">
+            <div class="map-dot" style="top:30%;left:25%"></div>
+            <div class="map-dot truck" style="top:50%;left:55%"></div>
+            <div class="map-dot" style="top:70%;left:40%"></div>
+            <div class="map-dot truck" style="top:25%;left:65%"></div>
+          </div>
+        </div>
+        <div class="route-info">
+          <div class="route-chip">
+            <span class="route-chip-icon">🏭</span>
+            <div class="route-chip-info">
+              <span class="route-chip-label">TPA</span>
+              <span class="route-chip-val">Kabonga Besar</span>
+            </div>
+          </div>
+          <div class="route-chip">
+            <span class="route-chip-icon">📍</span>
+            <div class="route-chip-info">
+              <span class="route-chip-label">Cakupan Layanan</span>
+              <span class="route-chip-val">Banawa + Banawa Tengah</span>
+            </div>
+          </div>
+          <div class="route-chip">
+            <span class="route-chip-icon">⚖️</span>
+            <div class="route-chip-info">
+              <span class="route-chip-label">Total Timbunan/Hari</span>
+              <span class="route-chip-val">155,5 Ton/Hari</span>
+            </div>
+          </div>
+          <div class="route-chip">
+            <span class="route-chip-icon">✅</span>
+            <div class="route-chip-info">
+              <span class="route-chip-label">Terkelola Aktif</span>
+              <span class="route-chip-val">24,9 Ton/Hari</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="float-badge float-badge-2">
+        <span class="float-badge-icon">♻️</span>
+        <div>
+          <div class="float-badge-text">Bank Sampah Induk: 2,80 Ton/Hari</div>
+          <div class="float-badge-sub">Donggala · Data per Agustus 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NERACA SAMPAH -->
+<section id="neraca">
+  <div class="fade-in">
+    <div class="section-label">⚖️ Neraca Persampahan</div>
+    <h2 class="section-title">Neraca Pengelolaan Sampah<br>Kabupaten Donggala 2025</h2>
+    <p class="section-sub">Data resmi berdasarkan estimasi koefisien timbulan sampah 0,5 kg/org/hari (Sumber: Kementerian LH / BPLH, Agustus 2025).</p>
+  </div>
+
+  <div class="neraca-grid fade-in">
+    <div class="neraca-card primary">
+      <div class="neraca-label">Total Timbulan Sampah</div>
+      <div class="neraca-value">154,15</div>
+      <div class="neraca-sub">ton/hari · setara 56.264 ton/tahun</div>
+      <div class="neraca-bar">
+        <div class="neraca-bar-fill" style="width:100%"></div>
+      </div>
+    </div>
+    <div class="neraca-card success">
+      <div class="neraca-label">Terkelola (25,26%)</div>
+      <div class="neraca-value">38,94</div>
+      <div class="neraca-sub">ton/hari · setara 14.213 ton/tahun<br>Bank Sampah Induk: 2,80 ton/hari<br>TPST (2 unit): 0,04 ton/hari<br>Bank Sampah Unit (3): 0,08 ton/hari</div>
+      <div class="neraca-bar">
+        <div class="neraca-bar-fill" style="width:25.26%"></div>
+      </div>
+    </div>
+    <div class="neraca-card warning">
+      <div class="neraca-label">Tidak Terkelola (74,74%)</div>
+      <div class="neraca-value">115,21</div>
+      <div class="neraca-sub">ton/hari · setara 42.052 ton/tahun<br>Terbuang ke lingkungan: 67 ton/hari<br>Open Dumping di TPA: 0 ton/hari</div>
+      <div class="neraca-bar">
+        <div class="neraca-bar-fill warning" style="width:74.74%"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JADWAL -->
+<section id="jadwal">
+  <div class="fade-in">
+    <div class="section-label">📅 Jadwal Pengangkutan</div>
+    <h2 class="section-title">Jadwal Mingguan<br>Pengangkutan Sampah</h2>
+    <p class="section-sub">Jadwal layanan UPT Persampahan Kabonga Besar — Senin s/d Sabtu, <strong>2 shift setiap hari</strong>.</p>
+  </div>
+
+  <!-- SHIFT BANNER -->
+  <div class="fade-in" style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:28px;">
+    <div style="display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,#fff9ef,#fff3e0); border:1.5px solid #ffd699; border-radius:14px; padding:16px 20px;">
+      <div style="font-size:1.8rem;">🌅</div>
+      <div>
+        <div style="font-size:0.78rem; font-weight:700; color:#b45309; letter-spacing:0.5px; text-transform:uppercase;">Shift Pagi</div>
+        <div style="font-size:1.2rem; font-weight:800; color:#92400e; font-family:'Space Mono',monospace;">06.00 – 08.00</div>
+        <div style="font-size:0.72rem; color:#a16207;">WITA · Senin s/d Sabtu</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,#eff6ff,#dbeafe); border:1.5px solid #93c5fd; border-radius:14px; padding:16px 20px;">
+      <div style="font-size:1.8rem;">🌆</div>
+      <div>
+        <div style="font-size:0.78rem; font-weight:700; color:#1d4ed8; letter-spacing:0.5px; text-transform:uppercase;">Shift Sore</div>
+        <div style="font-size:1.2rem; font-weight:800; color:#1e3a8a; font-family:'Space Mono',monospace;">16.00 – 18.00</div>
+        <div style="font-size:0.72rem; color:#1d4ed8;">WITA · Senin s/d Sabtu</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-bar fade-in">
+    <button class="filter-btn active" onclick="filterJadwal('semua', this)">Semua Wilayah</button>
+    <button class="filter-btn" onclick="filterJadwal('banawa', this)">Kec. Banawa</button>
+    <button class="filter-btn" onclick="filterJadwal('banawaT', this)">Kec. Banawa Tengah</button>
+  </div>
+
+  <div class="jadwal-grid fade-in" id="jadwalGrid"></div>
+</section>
+
+<!-- ANALISIS -->
+<section id="analisis">
+  <div class="fade-in">
+    <div class="section-label">📈 Analisis Data</div>
+    <h2 class="section-title">Analisis Timbulan Sampah<br>per Kecamatan</h2>
+    <p class="section-sub">Data layanan UPT Persampahan berdasarkan cakupan wilayah resmi. Total timbunan: 155,5 Ton/Hari.</p>
+  </div>
+
+  <div class="analisis-controls fade-in">
+    <select id="kecamatan-select" class="form-select">
+      <option value="">Pilih Kecamatan</option>
+      <option value="Banawa">Kec. Banawa</option>
+      <option value="Banawa Tengah">Kec. Banawa Tengah</option>
+    </select>
+    <button class="btn-primary" onclick="showAnalisis()">📊 Tampilkan Analisis</button>
+  </div>
+
+  <div id="analisis-output" class="fade-in">
+    <p style="color:var(--text-light); font-size:0.9rem;">Pilih kecamatan dan klik tombol untuk melihat data timbulan sampah.</p>
+  </div>
+</section>
+
+<!-- ANCAMAN PENYAKIT -->
+<section id="ancaman">
+  <div class="fade-in">
+    <div class="section-label">🏥 Kesehatan Lingkungan</div>
+    <h2 class="section-title">Ancaman Penyakit<br>Terkait Pengelolaan Sampah</h2>
+    <p class="section-sub">Sebesar 74,74% sampah Kab. Donggala belum terkelola — risiko kesehatan masyarakat perlu diwaspadai.</p>
+  </div>
+
+  <div class="info-grid fade-in">
+    <div class="info-card">
+      <div class="info-card-img b3">🦠</div>
+      <div class="info-card-body">
+        <div class="info-card-tag">Penyakit</div>
+        <div class="info-card-title">Diare &amp; Kolera</div>
+        <div class="info-card-desc">Paparan sampah organik yang membusuk mencemari sumber air dan menyebabkan infeksi saluran cerna.</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-img b3">🦟</div>
+      <div class="info-card-body">
+        <div class="info-card-tag">Penyakit</div>
+        <div class="info-card-title">Demam Berdarah</div>
+        <div class="info-card-desc">Sampah anorganik (botol, kaleng) yang tidak terkelola menjadi genangan tempat berkembang biak nyamuk Aedes aegypti.</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-img b3">🤒</div>
+      <div class="info-card-body">
+        <div class="info-card-tag">Penyakit</div>
+        <div class="info-card-title">Infeksi Kulit &amp; ISPA</div>
+        <div class="info-card-desc">Kontak dengan limbah rumah tangga dan pembakaran sampah liar menyebabkan iritasi kulit dan gangguan pernapasan.</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-img b3">🐀</div>
+      <div class="info-card-body">
+        <div class="info-card-tag">Vektor Penyakit</div>
+        <div class="info-card-title">Leptospirosis</div>
+        <div class="info-card-desc">Timbunan sampah yang tidak terkelola menjadi habitat tikus dan hewan pembawa bakteri leptospira.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUKASI -->
+<section id="edukasi">
+  <div class="fade-in">
+    <div class="section-label">📚 Edukasi &amp; Program</div>
+    <h2 class="section-title">Panduan Pemilahan &amp;<br>Program Inovasi Donggala</h2>
+    <p class="section-sub">Program unggulan DLH Kabupaten Donggala untuk meningkatkan pengelolaan sampah dari 25,26% menuju target nasional.</p>
+  </div>
+
+  <div class="info-grid fade-in" id="edukasiGrid"></div>
+</section>
+
+<!-- STATISTIK -->
+<section id="statistik">
+  <div class="fade-in">
+    <div class="section-label">📊 Statistik Kinerja</div>
+    <h2 class="section-title">Data Kinerja Persampahan<br>Kabupaten Donggala</h2>
+  </div>
+
+  <div class="stat-grid fade-in">
+    <div class="stat-card">
+      <div class="stat-icon">⚖️</div>
+      <div class="stat-number">155,5</div>
+      <div class="stat-label">Total Timbunan Sampah (Ton/Hari) — Data UPT</div>
+      <div class="stat-trend up">↑ Kec. Banawa 18,95 + Banawa Tengah 5,95</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">♻️</div>
+      <div class="stat-number">25,26%</div>
+      <div class="stat-label">Tingkat Pengelolaan Sampah Kabupaten</div>
+      <div class="stat-trend down">↓ 74,74% belum terkelola</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏦</div>
+      <div class="stat-number">3</div>
+      <div class="stat-label">Bank Sampah Unit Aktif — termasuk BSI &amp; SMA 1 Banawa</div>
+      <div class="stat-trend up">↑ 0,08 Ton/Hari dikelola BSU</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-number">1,8 M</div>
+      <div class="stat-label">Anggaran Pengelolaan Sampah 2025 (dari APBD Rp 1,61 T)</div>
+      <div class="stat-trend up">↑ Rp 1.805.520.000 dialokasikan</div>
+    </div>
+  </div>
+</section>
+
+<!-- TPA -->
+<section id="tpa">
+  <div class="fade-in">
+    <div class="section-label">🏭 Fasilitas TPA</div>
+    <h2 class="section-title">Profil Fasilitas Pengelolaan<br>Sampah Kabupaten Donggala</h2>
+    <p class="section-sub">Data resmi berdasarkan Evaluasi UPTD dan Profil Pengelolaan Sampah Agustus 2025.</p>
+  </div>
+
+  <div class="tpa-grid fade-in">
+    <div class="tpa-card">
+      <div class="tpa-header">
+        <div class="tpa-name">🏭 TPA Kabonga Besar</div>
+        <div class="tpa-status active">✅ Operasional</div>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">📋</span>
+        <span>Dasar Hukum: Perbup No. 1 Tahun 2018 tentang Pembentukan Susunan Organisasi UPT Dinas LH Kab. Donggala</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">📍</span>
+        <span>Cakupan Layanan: Kecamatan Banawa (18,95 Ton/Hari) dan sebagian Banawa Tengah (5,95 Ton/Hari)</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">👷</span>
+        <span>SDM: 1 Orang Kepala UPT — Dinas Lingkungan Hidup Kab. Donggala</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">🔧</span>
+        <span>Fasilitas: Penanganan Gas, GCL (Geomembrane Clay Liner), Controled Landfill, LTP (Leachate Treatment Plant), Sumur Pantau</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">🏗️</span>
+        <span>Kondisi: Penimbunan Controlled Landfill — Bak Equalisasi, Bak Anaerob, Bak Vakultatif, Bak Maturasi, Constructed Wetland</span>
+      </div>
+      <div class="tpa-anggaran">
+        <div>
+          <div class="tpa-anggaran-label">Biaya Operasional UPTD</div>
+          <div class="tpa-anggaran-val">Rp 1.401.800.000</div>
+        </div>
+        <div style="font-size:1.5rem">💰</div>
+      </div>
+    </div>
+
+    <div class="tpa-card">
+      <div class="tpa-header">
+        <div class="tpa-name">♻️ Bank Sampah &amp; TPST</div>
+        <div class="tpa-status active">✅ Aktif</div>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">🏦</span>
+        <span><strong>Bank Sampah Induk:</strong> 2,80 Ton/Hari dikelola aktif</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">🏦</span>
+        <span><strong>Bank Sampah Unit (BSU):</strong> 3 unit aktif — 0,08 Ton/Hari<br>Termasuk BSI &amp; Bank Sampah SMP Negeri 1 Banawa</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">🏗️</span>
+        <span><strong>TPST (Tempat Pengolahan Sampah Terpadu):</strong> 2 unit — 0,04 Ton/Hari</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">🔄</span>
+        <span><strong>TPS3R:</strong> 0 unit (dalam perencanaan pengembangan)</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">🎓</span>
+        <span>Program daur ulang di SMP Negeri 2 Banawa dan SMA 1 Banawa telah berjalan aktif.</span>
+      </div>
+      <div class="tpa-anggaran">
+        <div>
+          <div class="tpa-anggaran-label">Total Fasilitas Aktif</div>
+          <div class="tpa-anggaran-val">1 TPA + 2 TPST + 3 BSU</div>
+        </div>
+        <div style="font-size:1.5rem">🏭</div>
+      </div>
+    </div>
+
+    <div class="tpa-card">
+      <div class="tpa-header">
+        <div class="tpa-name">💰 Anggaran 2025</div>
+        <div class="tpa-status active">✅ Terverifikasi</div>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">📊</span>
+        <span><strong>APBD Kabupaten Donggala 2025:</strong><br>Rp 1.610.118.444.000</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">♻️</span>
+        <span><strong>Alokasi Pengelolaan Sampah:</strong><br>Rp 1.805.520.000</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">📉</span>
+        <span>Proporsi anggaran sampah terhadap APBD: <strong>0,11%</strong> — perlu peningkatan untuk mencapai target pengelolaan.</span>
+      </div>
+      <div class="tpa-detail">
+        <span class="tpa-detail-icon">👩‍💼</span>
+        <span>Kepala Dinas LH: <strong>Dra. ARITATRIANA, M.Si</strong><br>NIP. 19740414 199311 2 001</span>
+      </div>
+      <div class="tpa-anggaran">
+        <div>
+          <div class="tpa-anggaran-label">Sumber Data</div>
+          <div class="tpa-anggaran-val">BPLH &amp; DLH · Nov 2025</div>
+        </div>
+        <div style="font-size:1.5rem">📅</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARMADA -->
+<section id="armada">
+  <div class="fade-in">
+    <div class="section-label">🚛 Sarana & Prasarana</div>
+    <h2 class="section-title">Armada Pengangkutan Sampah<br>UPT Persampahan Kabonga Besar</h2>
+    <p class="section-sub">Data resmi armada dan fasilitas pengangkutan sampah — kepemilikan Pemda Kabupaten Donggala. Beroperasi Senin–Sabtu, pagi 06.00–08.00 & sore 16.00–18.00 WITA.</p>
+  </div>
+
+  <!-- Armada Pengangkut -->
+  <div class="armada-grid fade-in">
+    <div class="armada-card">
+      <div class="armada-icon">🛒</div>
+      <div class="armada-name">Gerobak Sampah</div>
+      <div class="armada-jumlah">22</div>
+      <div class="armada-unit">Unit · Pemda Kab. Donggala</div>
+      <div class="armada-specs">
+        <div class="armada-spec">
+          <span class="armada-spec-label">🔄 Ritasi / Hari</span>
+          <span class="armada-spec-val">3×</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">📦 Vol. Sampah</span>
+          <span class="armada-spec-val">2 m³/hari</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">🏛️ Kepemilikan</span>
+          <span class="armada-spec-val">Pemda</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="armada-card">
+      <div class="armada-icon">🛵</div>
+      <div class="armada-name">Motor Sampah 3 Roda</div>
+      <div class="armada-jumlah">10</div>
+      <div class="armada-unit">Unit · Pemda Kab. Donggala</div>
+      <div class="armada-specs">
+        <div class="armada-spec">
+          <span class="armada-spec-label">🔄 Ritasi / Hari</span>
+          <span class="armada-spec-val">3×</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">📦 Vol. Sampah</span>
+          <span class="armada-spec-val">1,2 m³/hari</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">🏛️ Kepemilikan</span>
+          <span class="armada-spec-val">Pemda</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="armada-card">
+      <div class="armada-icon">🚛</div>
+      <div class="armada-name">Dump Truck</div>
+      <div class="armada-jumlah">4</div>
+      <div class="armada-unit">Unit · Pemda Kab. Donggala</div>
+      <div class="armada-specs">
+        <div class="armada-spec">
+          <span class="armada-spec-label">🔄 Ritasi / Hari</span>
+          <span class="armada-spec-val">3×</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">📦 Vol. Sampah</span>
+          <span class="armada-spec-val">6 m³/hari</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">🏛️ Kepemilikan</span>
+          <span class="armada-spec-val">Pemda</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="armada-card">
+      <div class="armada-icon">🚚</div>
+      <div class="armada-name">Armroll Truck</div>
+      <div class="armada-jumlah">3</div>
+      <div class="armada-unit">Unit · Pemda Kab. Donggala</div>
+      <div class="armada-specs">
+        <div class="armada-spec">
+          <span class="armada-spec-label">🔄 Ritasi / Hari</span>
+          <span class="armada-spec-val">3×</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">📦 Vol. Sampah</span>
+          <span class="armada-spec-val">6 m³/hari</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">🏛️ Kepemilikan</span>
+          <span class="armada-spec-val">Pemda</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="armada-card inactive">
+      <div class="armada-icon">🗜️</div>
+      <div class="armada-name">Compactor</div>
+      <div class="armada-jumlah">0</div>
+      <div class="armada-unit">Unit · Dalam Perencanaan</div>
+      <div class="armada-specs">
+        <div class="armada-spec">
+          <span class="armada-spec-label">🔄 Ritasi / Hari</span>
+          <span class="armada-spec-val">—</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">📦 Vol. Sampah</span>
+          <span class="armada-spec-val">— m³/hari</span>
+        </div>
+        <div class="armada-spec">
+          <span class="armada-spec-label">📌 Status</span>
+          <span class="armada-spec-val">Belum Ada</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TPS & Kontainer -->
+  <div class="fade-in" style="margin-top:32px;">
+    <div class="section-label" style="margin-bottom:12px;">🏗️ Fasilitas Penampungan Sementara</div>
+    <div class="armada-tps-grid">
+      <div class="armada-tps-card">
+        <div class="armada-tps-icon">🏠</div>
+        <div>
+          <div class="armada-tps-val">2</div>
+          <div class="armada-tps-label">TPS Konvensional / Transfer Depo</div>
+          <div class="armada-tps-sub">Tercatat · Kepemilikan Pemda Kab. Donggala</div>
+        </div>
+      </div>
+      <div class="armada-tps-card">
+        <div class="armada-tps-icon">🗑️</div>
+        <div>
+          <div class="armada-tps-val">10</div>
+          <div class="armada-tps-label">Kontainer Sampah</div>
+          <div class="armada-tps-sub">Tersebar di Kec. Banawa & Banawa Tengah</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ringkasan kapasitas -->
+  <div class="fade-in" style="margin-top:28px; padding:20px 24px; background:linear-gradient(135deg,#e8f5ee,#d8f3dc); border-radius:16px; border:1.5px solid var(--green-pale);">
+    <div style="font-size:0.78rem; font-weight:700; color:var(--green-deep); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">📊 Total Kapasitas Armada Harian (Estimasi)</div>
+    <div style="display:flex; flex-wrap:wrap; gap:28px;">
+      <div><div style="font-size:1.6rem; font-weight:800; color:var(--green-mid); font-family:'Space Mono',monospace;">39</div><div style="font-size:0.75rem; color:var(--text-mid);">Total Unit Armada Aktif</div></div>
+      <div><div style="font-size:1.6rem; font-weight:800; color:var(--green-mid); font-family:'Space Mono',monospace;">~89,6</div><div style="font-size:0.75rem; color:var(--text-mid);">m³ Kapasitas Angkut / Hari</div></div>
+      <div><div style="font-size:1.6rem; font-weight:800; color:var(--green-mid); font-family:'Space Mono',monospace;">2×</div><div style="font-size:0.75rem; color:var(--text-mid);">Shift Harian (Pagi & Sore)</div></div>
+      <div><div style="font-size:1.6rem; font-weight:800; color:var(--green-mid); font-family:'Space Mono',monospace;">6 Hari</div><div style="font-size:0.75rem; color:var(--text-mid);">Operasi / Minggu (Sen–Sab)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ADUAN -->
+<section id="aduan">
+  <div class="aduan-container">
+    <div>
+      <div class="section-label">📋 Buat Pengaduan</div>
+      <h2 class="section-title">Laporkan Masalah<br>Persampahan</h2>
+      <p class="section-sub">Isi form pengaduan — laporan otomatis dikirim langsung ke WhatsApp UPT Persampahan <strong style="color:var(--lime);">085319323427</strong> dan diproses dalam 1×24 jam kerja.</p>
+
+      <div class="aduan-info" style="margin-top:36px;">
+        <div class="aduan-feature">
+          <div class="aduan-feature-icon">⚡</div>
+          <div>
+            <div class="aduan-feature-title">Respon Cepat 1×24 Jam</div>
+            <div class="aduan-feature-desc">Pengaduan diproses oleh petugas UPT Persampahan Kab. Donggala — Kec. Banawa dan Banawa Tengah.</div>
+          </div>
+        </div>
+        <div class="aduan-feature">
+          <div class="aduan-feature-icon">🔍</div>
+          <div>
+            <div class="aduan-feature-title">Lacak Nomor Tiket</div>
+            <div class="aduan-feature-desc">Setiap aduan mendapat nomor tiket unik untuk memantau perkembangan penanganan di lapangan.</div>
+          </div>
+        </div>
+        <div class="aduan-feature">
+          <div class="aduan-feature-icon">📸</div>
+          <div>
+            <div class="aduan-feature-title">Sertakan Foto Bukti</div>
+            <div class="aduan-feature-desc">Lampirkan foto kondisi sampah untuk mempercepat verifikasi dan penugasan petugas lapangan.</div>
+          </div>
+        </div>
+
+        <!-- WA DIRECT -->
+        <div style="margin-top:8px; padding:18px; background:rgba(37,211,102,0.1); border:1px solid rgba(37,211,102,0.25); border-radius:14px;">
+          <div style="font-size:0.78rem; font-weight:700; color:#95d5b2; letter-spacing:0.5px; margin-bottom:8px; text-transform:uppercase;">📞 Atau Hubungi Langsung</div>
+          <a href="https://wa.me/6285319323427?text=Halo%20UPT%20Persampahan%20Donggala%2C%20saya%20ingin%20melaporkan%20masalah%20persampahan." target="_blank"
+             style="display:flex; align-items:center; gap:12px; text-decoration:none; background:#25D366; padding:12px 18px; border-radius:10px; transition:all 0.2s;"
+             onmouseover="this.style.background='#1ebe5c'" onmouseout="this.style.background='#25D366'">
+            <span style="font-size:1.4rem;">💬</span>
+            <div>
+              <div style="font-size:0.88rem; font-weight:700; color:white;">WhatsApp UPT Persampahan</div>
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.8);">085319323427 · Chat Langsung</div>
+            </div>
+          </a>
+        </div>
+
+    <div class="aduan-form">
+      <div class="form-title">📝 Form Pengaduan Persampahan</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input type="text" class="form-input" id="aduanNama" placeholder="Nama Anda" required>
+        </div>
+        <div class="form-group">
+          <label>No. HP / WhatsApp *</label>
+          <input type="tel" class="form-input" id="aduanTelp" placeholder="08xx-xxxx-xxxx" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Kecamatan *</label>
+        <select class="form-select" id="aduanKecamatan" required onchange="updateKelurahan(this.value)">
+          <option value="">-- Pilih Kecamatan --</option>
+          <option value="banawa">Kec. Banawa</option>
+          <option value="banawa_tengah">Kec. Banawa Tengah</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="kelurahanGroup" style="display:none;">
+        <label>Kelurahan / Desa *</label>
+        <select class="form-select" id="aduanKelurahan" required>
+          <option value="">-- Pilih Kelurahan/Desa --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Shift Pengangkutan yang Bermasalah</label>
+        <select class="form-select" id="aduanShift">
+          <option value="">-- Pilih Shift (opsional) --</option>
+          <option value="pagi">🌅 Shift Pagi (06.00–08.00 WITA)</option>
+          <option value="sore">🌆 Shift Sore (16.00–18.00 WITA)</option>
+          <option value="keduanya">⚠️ Kedua Shift Bermasalah</option>
+          <option value="tidak_ada">Tidak ada pengangkutan sama sekali</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Jenis Pengaduan *</label>
+        <select class="form-select" id="aduanJenis" required>
+          <option value="">-- Pilih Jenis --</option>
+          <option value="tidak_diangkut">Sampah tidak diangkut</option>
+          <option value="terlambat">Pengangkutan terlambat</option>
+          <option value="tps_penuh">TPS/TPST penuh / meluber</option>
+          <option value="bau_busuk">Bau tidak sedap di TPA / TPS</option>
+          <option value="ilegal_dumping">Pembuangan liar (open dumping)</option>
+          <option value="bank_sampah">Masalah bank sampah unit</option>
+          <option value="lainnya">Lainnya</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Lokasi Kejadian *</label>
+        <input type="text" class="form-input" id="aduanLokasi" placeholder="Nama jalan / kelurahan / desa / RT-RW" required>
+      </div>
+
+      <div class="form-group">
+        <label>Deskripsi Masalah *</label>
+        <textarea class="form-textarea" id="aduanDeskripsi" placeholder="Jelaskan masalah persampahan yang Anda hadapi secara detail..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Foto Pendukung (opsional)</label>
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">📷</div>
+          <div>Klik untuk unggah foto kondisi sampah</div>
+          <div style="font-size:0.7rem; margin-top:4px; opacity:0.6">JPG, PNG • Maks 5MB</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(this)">
+        <div id="filePreview" style="margin-top:8px; font-size:0.8rem; color:var(--lime);"></div>
+      </div>
+
+      <button class="form-submit" id="btnSubmitAduan" onclick="submitAduan()">
+        <span id="submitText">📲 Kirim via WhatsApp ke UPT Persampahan</span>
+      </button>
+      <div style="text-align:center; margin-top:12px; font-size:0.75rem; color:rgba(255,255,255,0.4);">
+        Laporan otomatis dikirim ke WhatsApp UPT · <strong style="color:var(--lime);">085319323427</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACKING -->
+<section id="tracking">
+  <div class="fade-in" style="text-align:center;">
+    <div class="section-label" style="justify-content:center;">🔍 Lacak Status</div>
+    <h2 class="section-title">Lacak Pengaduan Anda</h2>
+    <p class="section-sub" style="margin:0 auto;">Masukkan nomor tiket yang diterima setelah mengirim pengaduan ke UPT Persampahan Kabonga Besar.</p>
+  </div>
+
+  <div class="tracking-container fade-in">
+    <div class="tracking-input-wrap">
+      <input type="text" class="tracking-input" id="trackingInput"
+        placeholder="Contoh: ADU-2025-001234"
+        onkeypress="if(event.key==='Enter') trackAduan()">
+      <button class="btn-primary" onclick="trackAduan()">🔍 Lacak</button>
+    </div>
+    <div class="tracking-result" id="trackingResult">
+      <div class="tracking-status-row">
+        <div>
+          <div class="tracking-id" id="trackId">—</div>
+          <div style="font-size:1rem; font-weight:700; color:var(--text-dark); margin-top:4px;" id="trackJenis">—</div>
+        </div>
+        <div class="status-badge" id="trackStatus">—</div>
+      </div>
+      <div class="timeline" id="trackTimeline"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="margin-bottom:8px">
+        <div class="nav-logo-icon">♻️</div>
+        <div class="nav-logo-text" style="color:white;">SIPAS <span>Donggala</span></div>
+      </div>
+      <p>Sistem Informasi Pengelolaan Sampah Terpadu — Dinas Lingkungan Hidup Kabupaten Donggala. Melayani masyarakat Kec. Banawa &amp; Banawa Tengah untuk lingkungan yang lebih bersih.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Layanan</h4>
+      <a href="#neraca">Neraca Persampahan</a>
+      <a href="#jadwal">Jadwal Pengangkutan</a>
+      <a href="#armada">🚛 Armada & Sarana</a>
+      <a href="#aduan">Buat Pengaduan</a>
+      <a href="#tracking">Lacak Status</a>
+      <a href="#tpa">Profil TPA Kabonga</a>
+    </div>
+    <div class="footer-col">
+      <h4>Informasi</h4>
+      <a href="#">Tentang DLH Donggala</a>
+      <a href="#">UU No. 18 Tahun 2018</a>
+      <a href="#">Perbup No. 1 Tahun 2018</a>
+      <a href="#">Program TAKE</a>
+      <a href="#">Bank Sampah</a>
+    </div>
+    <div class="footer-col">
+      <h4>Kontak UPT</h4>
+      <a href="https://wa.me/6285319323427" target="_blank">💬 WhatsApp: 085319323427</a>
+      <a href="#">🏢 UPT Persampahan Kabonga Besar</a>
+      <a href="#">📍 Kab. Donggala, Sulawesi Tengah</a>
+      <a href="#">👩‍💼 Dra. Aritatriana, M.Si (Kadis LH)</a>
+      <a href="#">🕐 Sen–Sab 06.00–18.00 WITA</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 SIPAS Donggala · Dinas Lingkungan Hidup Kab. Donggala · Data per Agustus–November 2025</span>
+    <span>v1.1.0 · Sumber: BPLH &amp; UPTD Persampahan</span>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Berhasil!</div>
+
+<!-- FLOATING WHATSAPP -->
+<div class="wa-float">
+  <div class="wa-tooltip">💬 Chat UPT Persampahan via WhatsApp</div>
+  <a class="wa-btn" href="https://wa.me/6285319323427?text=Halo%2C%20saya%20ingin%20melaporkan%20masalah%20persampahan%20di%20wilayah%20saya." target="_blank" title="Chat WhatsApp UPT Persampahan">💬</a>
+</div>
+
+<script>
+// =====================================================
+// DATA NYATA — Sumber: Dokumen BPLH, UPTD & PPTX 2025
+// =====================================================
+
+// Jadwal pengangkutan UPT Persampahan Kabonga Besar
+// Senin–Sabtu · Pagi 06.00–08.00 & Sore 16.00–18.00 WITA
+// Cakupan: Semua Kel./Desa Kec. Banawa + Sebagian Banawa Tengah
+const JADWAL_DATA = {
+  semua: [
+    {
+      hari: 'Senin',
+      isToday: false,
+      wilayah: ['Kel. Kabonga Besar', 'Kel. Kabonga Kecil', 'Kel. Boya', 'Kel. Gunung Bale', '📍 Sebagian Desa Towale (Banawa Tengah)'],
+      jam: '🌅 Pagi 06.00–08.00 & 🌆 Sore 16.00–18.00 WITA',
+      kec: ['banawa', 'banawaT']
+    },
+    {
+      hari: 'Selasa',
+      isToday: false,
+      wilayah: ['Kel. Maleni', 'Kel. Tibo', 'Kel. Donggala Kodi', '📍 Desa Loli Saluran (Banawa Tengah)'],
+      jam: '🌅 Pagi 06.00–08.00 & 🌆 Sore 16.00–18.00 WITA',
+      kec: ['banawa', 'banawaT']
+    },
+    {
+      hari: 'Rabu',
+      isToday: false,
+      wilayah: ['Kel. Labuan Bajo', 'Kel. Boneoge', 'Kel. Ganti', '📍 Desa Wani I (Banawa Tengah)'],
+      jam: '🌅 Pagi 06.00–08.00 & 🌆 Sore 16.00–18.00 WITA',
+      kec: ['banawa', 'banawaT']
+    },
+    {
+      hari: 'Kamis',
+      isToday: false,
+      wilayah: ['Kel. Kabonga Besar', 'Kel. Kabonga Kecil', 'Kel. Boya', '📍 Desa Wani II (Banawa Tengah)'],
+      jam: '🌅 Pagi 06.00–08.00 & 🌆 Sore 16.00–18.00 WITA',
+      kec: ['banawa', 'banawaT']
+    },
+    {
+      hari: 'Jumat',
+      isToday: false,
+      wilayah: ['Kel. Gunung Bale', 'Kel. Maleni', 'Kel. Tibo', 'Kel. Donggala Kodi', '📍 Desa Loli Saluran & Towale (Banawa Tengah)'],
+      jam: '🌅 Pagi 06.00–08.00 & 🌆 Sore 16.00–18.00 WITA',
+      kec: ['banawa', 'banawaT']
+    },
+    {
+      hari: 'Sabtu',
+      isToday: false,
+      wilayah: ['Kel. Labuan Bajo', 'Kel. Boneoge', 'Kel. Ganti', 'Bank Sampah Unit — Penerimaan Setoran', '📍 Seluruh Desa Banawa Tengah (Gotong Royong)'],
+      jam: '🌅 Pagi 06.00–08.00 & 🌆 Sore 16.00–18.00 WITA',
+      kec: ['banawa', 'banawaT']
+    },
+    {
+      hari: 'Minggu',
+      isToday: false,
+      wilayah: ['Libur Pengangkutan Reguler', 'TPST Beroperasi (mandiri)'],
+      jam: '—'
+    },
+  ]
+};
+
+// Tandai hari ini
+const today = new Date().getDay(); // 0=Minggu...6=Sabtu
+const dayMap = [6, 0, 1, 2, 3, 4, 5];
+if (JADWAL_DATA.semua[dayMap[today]]) {
+  JADWAL_DATA.semua[dayMap[today]].isToday = true;
+}
+
+// Data timbulan sampah per kecamatan (UPTD + estimasi BPLH)
+const dataSampah = {
+  "Banawa": {
+    label: "Kec. Banawa",
+    timbulan_total: 154.15,
+    layanan_uptd: 18.95,
+    bank_sampah: 2.88,  // BSI 2.80 + BSU 0.08
+    tpst: 0.04,
+    tidak_terkelola: 132.28,
+    persen_kelola: 25.26,
+    populasi_estimasi: 37900,
+    catatan: 'Pusat cakupan layanan UPT Persampahan Kabonga Besar. Termasuk SMP Negeri 1 Banawa (Bank Sampah) dan SMA 1 Banawa (BSI).'
+  },
+  "Banawa Tengah": {
+    label: "Kec. Banawa Tengah",
+    timbulan_total: 28.10,
+    layanan_uptd: 5.95,
+    bank_sampah: 0,
+    tpst: 0,
+    tidak_terkelola: 22.15,
+    persen_kelola: 21.17,
+    populasi_estimasi: 11100,
+    catatan: 'Sebagian dilayani UPT Persampahan Kabonga Besar. Komunitas di Desa Towale secara rutin melakukan gotong royong kebersihan.'
+  }
+};
+
+// =====================================================
+// KELURAHAN DINAMIS
+// =====================================================
+const KELURAHAN_DATA = {
+  banawa: [
+    'Kel. Kabonga Besar',
+    'Kel. Kabonga Kecil',
+    'Kel. Boya',
+    'Kel. Gunung Bale',
+    'Kel. Maleni',
+    'Kel. Tibo',
+    'Kel. Donggala Kodi',
+    'Kel. Labuan Bajo',
+    'Kel. Boneoge',
+    'Kel. Ganti',
+    'Desa Tolongano',
+    'Desa Limboro',
+    'Desa Nupa Bomba',
+    'Desa Surumana',
+  ],
+  banawa_tengah: [
+    'Desa Towale',
+    'Desa Loli Saluran',
+    'Desa Loli Pesua',
+    'Desa Loli Oge',
+    'Desa Wani I',
+    'Desa Wani II',
+    'Desa Wani III',
+    'Desa Wani IV',
+    'Desa Lero',
+    'Desa Dalaka',
+  ]
+};
+
+function updateKelurahan(kec) {
+  const group = document.getElementById('kelurahanGroup');
+  const sel = document.getElementById('aduanKelurahan');
+  if (!kec) { group.style.display = 'none'; return; }
+  const opts = KELURAHAN_DATA[kec] || [];
+  sel.innerHTML = '<option value="">-- Pilih Kelurahan/Desa --</option>' +
+    opts.map(k => `<option value="${k}">${k}</option>`).join('');
+  group.style.display = 'flex';
+}
+
+// =====================================================
+// MOBILE MENU
+// =====================================================
+function toggleMobileMenu() {
+  const menu = document.getElementById('navMobileMenu');
+  menu.classList.toggle('open');
+}
+
+// =====================================================
+// INISIALISASI
+// =====================================================
+// =====================================================
+// INTEGRASI BACKEND API
+// =====================================================
+const SIPAS_API = 'http://localhost:3001';
+
+async function loadFromBackend() {
+  try {
+    const res = await fetch(SIPAS_API + '/api/public/all');
+    if (!res.ok) throw new Error('Backend error');
+    const data = await res.json();
+
+    // Update jadwal
+    if (data.jadwal && data.jadwal.length) {
+      JADWAL_DATA.semua = data.jadwal;
+      const today = new Date().getDay();
+      const dayMap = [6, 0, 1, 2, 3, 4, 5];
+      JADWAL_DATA.semua.forEach(j => j.isToday = false);
+      if (JADWAL_DATA.semua[dayMap[today]]) JADWAL_DATA.semua[dayMap[today]].isToday = true;
+    }
+
+    // Update data sampah
+    if (data.dataSampah) Object.assign(dataSampah, data.dataSampah);
+
+    // Update kelurahan
+    if (data.kelurahan) Object.assign(KELURAHAN_DATA, data.kelurahan);
+
+    // Update nomor WA jika ada di kontak
+    if (data.kontak && data.kontak.wa_upt) {
+      const waNum = data.kontak.wa_upt;
+      document.querySelectorAll('a[href*="wa.me"]').forEach(el => {
+        el.href = el.href.replace(/wa\.me\/\d+/, 'wa.me/' + waNum);
+      });
+    }
+
+    // Update hero stats
+    if (data.heroStats) {
+      // Update stat numbers jika ada elemen yang cocok
+    }
+
+    console.log('✅ SIPAS: Data berhasil dimuat dari backend.');
+  } catch (e) {
+    console.warn('⚠️ SIPAS: Backend tidak terhubung, menggunakan data statis.', e.message);
+  }
+}
+
+// Override submitAduan agar juga save ke backend
+const _origSubmitAduan = submitAduan;
+async function submitAduan() {
+  const nama = document.getElementById('aduanNama').value.trim();
+  const telp = document.getElementById('aduanTelp').value.trim();
+  const kecamatan = document.getElementById('aduanKecamatan').value;
+  const kelurahan = document.getElementById('aduanKelurahan')?.value?.trim() || '';
+  const shift = document.getElementById('aduanShift')?.value || '';
+  const jenis = document.getElementById('aduanJenis').value;
+  const lokasi = document.getElementById('aduanLokasi').value.trim();
+  const deskripsi = document.getElementById('aduanDeskripsi').value.trim();
+
+  const tiketNo = 'ADU-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*900000)+100000);
+
+  // Simpan ke backend dulu
+  try {
+    await fetch(SIPAS_API + '/api/aduan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tiket: tiketNo, nama, telp, kecamatan, kelurahan, shift, jenis, lokasi, deskripsi })
+    });
+  } catch (e) {
+    console.warn('Backend tidak terhubung, aduan hanya via WhatsApp.');
+  }
+
+  // Lanjut proses WA seperti biasa (panggil fungsi asli)
+  return _origSubmitAduan();
+}
+
+// Override trackAduan agar cek backend
+async function trackAduan() {
+  const noTiket = document.getElementById('trackingInput').value.trim();
+  if (!noTiket) { showToast('⚠️ Masukkan nomor tiket', 'error'); return; }
+
+  try {
+    const res = await fetch(SIPAS_API + '/api/aduan/' + noTiket);
+    if (!res.ok) throw new Error('not found');
+    const a = await res.json();
+
+    const statusSteps = {
+      menunggu: [
+        { done: true, active: false, icon: '📋', title: 'Aduan Diterima UPT Kabonga Besar', waktu: 'Diterima & terdokumentasi' },
+        { done: false, active: true, icon: '🔍', title: 'Verifikasi Admin DLH Donggala', waktu: 'Menunggu verifikasi' },
+        { done: false, active: false, icon: '👷', title: 'Penugasan Petugas Lapangan', waktu: '—' },
+        { done: false, active: false, icon: '✅', title: 'Aduan Selesai Ditangani', waktu: '—' },
+      ],
+      proses: [
+        { done: true, active: false, icon: '📋', title: 'Aduan Diterima UPT Kabonga Besar', waktu: 'Diterima & terdokumentasi' },
+        { done: true, active: false, icon: '🔍', title: 'Verifikasi Admin DLH Donggala', waktu: 'Sudah diverifikasi' },
+        { done: false, active: true, icon: '👷', title: 'Penugasan Petugas Lapangan', waktu: 'Sedang diproses...' },
+        { done: false, active: false, icon: '✅', title: 'Aduan Selesai Ditangani', waktu: '—' },
+      ],
+      selesai: [
+        { done: true, active: false, icon: '📋', title: 'Aduan Diterima UPT Kabonga Besar', waktu: 'Diterima & terdokumentasi' },
+        { done: true, active: false, icon: '🔍', title: 'Verifikasi Admin DLH Donggala', waktu: 'Telah diverifikasi' },
+        { done: true, active: false, icon: '👷', title: 'Penugasan Petugas Lapangan', waktu: 'Petugas ditugaskan' },
+        { done: true, active: false, icon: '✅', title: 'Aduan Selesai Ditangani', waktu: a.catatan_admin || 'Selesai ditangani' },
+      ]
+    };
+
+    const timeline = statusSteps[a.status] || statusSteps.menunggu;
+    document.getElementById('trackId').textContent = '# ' + a.tiket;
+    document.getElementById('trackJenis').textContent = a.jenis;
+    const statusEl = document.getElementById('trackStatus');
+    statusEl.className = 'status-badge ' + a.status;
+    statusEl.textContent = a.status === 'proses' ? '🔄 Diproses' : a.status === 'selesai' ? '✅ Selesai' : '⏳ Menunggu';
+    document.getElementById('trackTimeline').innerHTML = timeline.map(t => `
+      <div class="timeline-item ${t.done ? 'done' : ''} ${t.active ? 'active' : ''}">
+        <div class="timeline-dot">${t.icon}</div>
+        <div class="timeline-content">
+          <div class="timeline-title">${t.title}</div>
+          <div class="timeline-sub">${t.waktu}</div>
+        </div>
+      </div>`).join('');
+    document.getElementById('trackingResult').classList.add('show');
+  } catch (e) {
+    showToast('❌ Nomor tiket tidak ditemukan', 'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadFromBackend();
+  renderJadwal(JADWAL_DATA.semua);
+  loadEdukasi();
+  initScrollObserver();
+  document.getElementById('analisis-output').innerHTML =
+    '<p style="color:var(--text-light); font-size:0.9rem;">Pilih kecamatan dan klik tombol untuk melihat data timbulan sampah.</p>';
+});
+
+// =====================================================
+// JADWAL
+// =====================================================
+function renderJadwal(data) {
+  const grid = document.getElementById('jadwalGrid');
+  grid.innerHTML = data.map(j => `
+    <div class="jadwal-card ${j.isToday ? 'today' : ''}">
+      <div class="jadwal-hari">
+        <span class="jadwal-day-name">${j.hari}</span>
+        <span class="jadwal-badge ${j.isToday ? 'today-badge' : ''}">${j.isToday ? '⭐ HARI INI' : j.hari.slice(0,3).toUpperCase()}</span>
+      </div>
+      <div class="jadwal-wilayah">
+        ${j.wilayah.map(w => `<div class="wilayah-item"><div class="wilayah-dot"></div>${w}</div>`).join('')}
+      </div>
+      <div class="jadwal-time">⏰ ${j.jam}</div>
+    </div>
+  `).join('');
+}
+
+function filterJadwal(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (filter === 'semua') {
+    renderJadwal(JADWAL_DATA.semua);
+  } else {
+    renderJadwal(JADWAL_DATA.semua.filter(j => !j.kec || j.kec.includes(filter)));
+  }
+}
+
+// =====================================================
+// ANALISIS
+// =====================================================
+function showAnalisis() {
+  const kec = document.getElementById('kecamatan-select').value;
+  const output = document.getElementById('analisis-output');
+  if (!kec) {
+    output.innerHTML = '<p style="color:var(--text-light);">Silakan pilih kecamatan terlebih dahulu.</p>';
+    return;
+  }
+  const d = dataSampah[kec];
+  const maxVal = d.timbulan_total;
+
+  output.innerHTML = `
+    <h3>📊 Data Timbulan Sampah — ${d.label}</h3>
+    <p style="font-size:0.82rem; color:var(--text-light); margin-bottom:20px; font-family:'Space Mono',monospace;">
+      Estimasi populasi: ~${d.populasi_estimasi.toLocaleString()} jiwa · Koefisien 0,5 kg/org/hari
+    </p>
+    <div class="analisis-bars">
+      <div class="analisis-bar-item">
+        <div class="analisis-bar-label">
+          <span>⚖️ Total Timbulan Sampah</span>
+          <span style="font-family:'Space Mono',monospace;">${d.timbulan_total} ton/hari</span>
+        </div>
+        <div class="analisis-bar-track">
+          <div class="analisis-bar-fill" style="width:100%"></div>
+        </div>
+      </div>
+      <div class="analisis-bar-item">
+        <div class="analisis-bar-label">
+          <span>🚛 Dilayani UPT Persampahan Kabonga Besar</span>
+          <span style="font-family:'Space Mono',monospace;">${d.layanan_uptd} ton/hari (${((d.layanan_uptd/maxVal)*100).toFixed(1)}%)</span>
+        </div>
+        <div class="analisis-bar-track">
+          <div class="analisis-bar-fill" style="width:${(d.layanan_uptd/maxVal)*100}%"></div>
+        </div>
+      </div>
+      ${d.bank_sampah > 0 ? `
+      <div class="analisis-bar-item">
+        <div class="analisis-bar-label">
+          <span>🏦 Bank Sampah (BSI + BSU)</span>
+          <span style="font-family:'Space Mono',monospace;">${d.bank_sampah} ton/hari</span>
+        </div>
+        <div class="analisis-bar-track">
+          <div class="analisis-bar-fill" style="width:${(d.bank_sampah/maxVal)*100}%"></div>
+        </div>
+      </div>` : ''}
+      ${d.tpst > 0 ? `
+      <div class="analisis-bar-item">
+        <div class="analisis-bar-label">
+          <span>🏗️ TPST (2 unit)</span>
+          <span style="font-family:'Space Mono',monospace;">${d.tpst} ton/hari</span>
+        </div>
+        <div class="analisis-bar-track">
+          <div class="analisis-bar-fill" style="width:${(d.tpst/maxVal)*100}%"></div>
+        </div>
+      </div>` : ''}
+      <div class="analisis-bar-item">
+        <div class="analisis-bar-label">
+          <span>⚠️ Tidak Terkelola / Terbuang ke Lingkungan</span>
+          <span style="font-family:'Space Mono',monospace;">${d.tidak_terkelola.toFixed(2)} ton/hari (${(100 - d.persen_kelola).toFixed(2)}%)</span>
+        </div>
+        <div class="analisis-bar-track">
+          <div class="analisis-bar-fill danger" style="width:${((d.tidak_terkelola)/maxVal)*100}%"></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px; padding:16px; background:rgba(45,106,79,0.06); border-radius:10px; border-left:3px solid var(--green-bright);">
+      <div style="font-size:0.78rem; font-weight:600; color:var(--green-deep); margin-bottom:4px;">📌 Catatan</div>
+      <div style="font-size:0.8rem; color:var(--text-mid);">${d.catatan}</div>
+    </div>
+  `;
+}
+
+// =====================================================
+// EDUKASI & PROGRAM
+// =====================================================
+function loadEdukasi() {
+  const items = [
+    { type: 'organic', icon: '🥦', tag: 'Organik', title: 'Sampah Organik', desc: 'Sisa makanan, sayuran, dan bahan alami. Di Donggala, Bank Sampah Induk mengelola 2,80 ton/hari sampah jenis ini menjadi kompos.' },
+    { type: 'anorganic', icon: '🧴', tag: 'Anorganik', title: 'Sampah Anorganik', desc: 'Plastik, logam, kaca yang dapat didaur ulang. Program daur ulang aktif di SMP Negeri 2 Banawa dan SMA 1 Banawa.' },
+    { type: 'b3', icon: '☠️', tag: 'Limbah B3', title: 'Limbah Berbahaya (B3)', desc: 'Baterai, cat, oli bekas. Serahkan ke petugas DLH Kab. Donggala untuk pengelolaan khusus. Jangan dibuang sembarangan.' },
+    { type: 'recycle', icon: '🏦', tag: 'Bank Sampah', title: 'Bank Sampah Unit', desc: '3 BSU aktif di Donggala termasuk di SMA 1 Banawa. Setorkan sampah bernilai (plastik, kertas, logam) untuk mendapatkan poin atau uang tunai.' },
+    { type: 'program', icon: '🤝', tag: 'Program TAKE', title: 'Program TAKE (Insentif Desa)', desc: 'Skema tata kelola anggaran daerah Pemkab Donggala — memberikan insentif finansial kepada desa yang berhasil menerapkan kebijakan pro-lingkungan.' },
+    { type: 'program', icon: '🏘️', tag: 'Gotong Royong', title: 'Kerja Bakti Massal', desc: 'Pemkab Donggala rutin mengadakan kerja bakti massal di Kec. Banawa dan sekitarnya untuk menggaungkan semangat gotong royong menjaga kebersihan.' },
+  ];
+
+  document.getElementById('edukasiGrid').innerHTML = items.map(e => `
+    <div class="info-card">
+      <div class="info-card-img ${e.type}">${e.icon}</div>
+      <div class="info-card-body">
+        <div class="info-card-tag">${e.tag}</div>
+        <div class="info-card-title">${e.title}</div>
+        <div class="info-card-desc">${e.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// =====================================================
+// SUBMIT ADUAN
+// =====================================================
+async function submitAduan() {
+  const nama = document.getElementById('aduanNama').value.trim();
+  const telp = document.getElementById('aduanTelp').value.trim();
+  const kecamatan = document.getElementById('aduanKecamatan').value;
+  const kelurahan = document.getElementById('aduanKelurahan')?.value?.trim() || '';
+  const shift = document.getElementById('aduanShift')?.value || '';
+  const jenis = document.getElementById('aduanJenis').value;
+  const lokasi = document.getElementById('aduanLokasi').value.trim();
+  const deskripsi = document.getElementById('aduanDeskripsi').value.trim();
+
+  if (!nama || !telp || !kecamatan || !jenis || !lokasi || !deskripsi) {
+    showToast('⚠️ Lengkapi semua field yang wajib diisi', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitAduan');
+  const txt = document.getElementById('submitText');
+  btn.classList.add('loading');
+  txt.textContent = '⏳ Menyiapkan pesan WhatsApp...';
+
+  const tiketNo = 'ADU-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*900000)+100000);
+
+  const jenisLabel = {
+    tidak_diangkut: 'Sampah tidak diangkut',
+    terlambat: 'Pengangkutan terlambat',
+    tps_penuh: 'TPS/TPST penuh / meluber',
+    bau_busuk: 'Bau tidak sedap di TPA/TPS',
+    ilegal_dumping: 'Pembuangan liar (open dumping)',
+    bank_sampah: 'Masalah bank sampah unit',
+    lainnya: 'Lainnya'
+  }[jenis] || jenis;
+
+  const shiftLabel = {
+    pagi: '🌅 Shift Pagi (06.00–08.00)',
+    sore: '🌆 Shift Sore (16.00–18.00)',
+    keduanya: '⚠️ Kedua Shift Bermasalah',
+    tidak_ada: 'Tidak ada pengangkutan sama sekali'
+  }[shift] || '—';
+
+  const kecLabel = kecamatan === 'banawa' ? 'Kec. Banawa' : 'Kec. Banawa Tengah';
+  const wilayahFull = kelurahan ? `${kecLabel} — ${kelurahan}` : kecLabel;
+
+  const pesan =
+`🗑️ *PENGADUAN PERSAMPAHAN — SIPAS DONGGALA*
+
+📋 No. Tiket: *${tiketNo}*
+📅 ${new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'})} · ${new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})} WITA
+
+━━━━━━━━━━━━━━━━━━━
+👤 *Pelapor:* ${nama}
+📱 *Kontak:* ${telp}
+📍 *Wilayah:* ${wilayahFull}
+⏰ *Shift Bermasalah:* ${shiftLabel}
+━━━━━━━━━━━━━━━━━━━
+⚠️ *Jenis Masalah:* ${jenisLabel}
+🗺️ *Lokasi Detail:* ${lokasi}
+
+📝 *Keterangan:*
+${deskripsi}
+━━━━━━━━━━━━━━━━━━━
+_Dikirim via SIPAS — Sistem Informasi Pengelolaan Sampah Kab. Donggala_`;
+
+  const waURL = 'https://wa.me/6285319323427?text=' + encodeURIComponent(pesan);
+
+  await new Promise(r => setTimeout(r, 800));
+  btn.classList.remove('loading');
+  txt.textContent = '📲 Kirim via WhatsApp ke UPT Persampahan';
+
+  window.open(waURL, '_blank');
+  showToast(`✅ WhatsApp dibuka! Tiket: ${tiketNo} — Kirim pesan ke UPT`);
+  setTimeout(() => { document.getElementById('trackingInput').value = tiketNo; }, 2500);
+
+  ['aduanNama','aduanTelp','aduanLokasi','aduanDeskripsi'].forEach(id => document.getElementById(id).value = '');
+  ['aduanJenis','aduanShift','aduanKecamatan','aduanKelurahan'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('kelurahanGroup').style.display = 'none';
+  document.getElementById('filePreview').textContent = '';
+}
+
+// =====================================================
+// TRACKING
+// =====================================================
+async function trackAduan() {
+  const noTiket = document.getElementById('trackingInput').value.trim();
+  if (!noTiket) { showToast('⚠️ Masukkan nomor tiket', 'error'); return; }
+
+  try {
+    // Simulasi — ganti dengan API call ke backend
+    const data = {
+      id: noTiket,
+      jenis: 'Sampah tidak diangkut',
+      status: 'proses',
+      timeline: [
+        { done: true, active: false, icon: '📋', title: 'Aduan Diterima UPT Kabonga Besar', waktu: 'Diterima & terdokumentasi' },
+        { done: true, active: false, icon: '🔍', title: 'Verifikasi Admin DLH Donggala', waktu: 'Sedang diverifikasi oleh petugas' },
+        { done: false, active: true, icon: '👷', title: 'Penugasan Petugas Lapangan', waktu: 'Sedang diproses...' },
+        { done: false, active: false, icon: '✅', title: 'Aduan Selesai Ditangani', waktu: '—' },
+      ]
+    };
+
+    document.getElementById('trackId').textContent = '# ' + data.id;
+    document.getElementById('trackJenis').textContent = data.jenis;
+
+    const statusEl = document.getElementById('trackStatus');
+    statusEl.className = 'status-badge ' + data.status;
+    statusEl.textContent = data.status === 'proses' ? '🔄 Diproses' : data.status === 'selesai' ? '✅ Selesai' : '⏳ Menunggu';
+
+    document.getElementById('trackTimeline').innerHTML = data.timeline.map(t => `
+      <div class="timeline-item ${t.done ? 'done' : ''} ${t.active ? 'active' : ''}">
+        <div class="timeline-dot">${t.icon}</div>
+        <div class="timeline-content">
+          <div class="timeline-title">${t.title}</div>
+          <div class="timeline-sub">${t.waktu}</div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('trackingResult').classList.add('show');
+  } catch (e) {
+    showToast('❌ Nomor tiket tidak ditemukan', 'error');
+  }
+}
+
+// =====================================================
+// UTILS
+// =====================================================
+function handleFileUpload(input) {
+  if (input.files[0]) {
+    document.getElementById('filePreview').textContent = `📎 ${input.files[0].name}`;
+    document.getElementById('uploadArea').style.borderColor = 'var(--green-light)';
+  }
+}
+
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast' + (type === 'error' ? ' error' : '');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4500);
+}
+
+function initScrollObserver() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+</script>
+
+</body>
+</html>
