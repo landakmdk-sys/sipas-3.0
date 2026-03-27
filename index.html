@@ -1609,27 +1609,22 @@
 </style>
 </head>
 <body>
-   <div style="
-  position: fixed;
-  top: 5px;
-  left: 215px; /* sebelumnya 20px */
-  z-index: 9999;
-  display: flex;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0);
-  padding: 5px 10px;
-  border-radius: 10px;
-">
-  <img src="logo-pemda.png" height="45">
-  <img src="logo-berakhlak.png" height="45">
-</div>
 
 <!-- NAVBAR -->
 <nav>
-  <a class="nav-logo" href="#">
+  <a class="nav-logo" href="#" style="display:flex; align-items:center; gap:15px;">
+
+  <div style="display:flex; gap:8px;">
+    <img src="logo-pemda.png" style="height:45px;">
+    <img src="logo-berakhlak.png" style="height:35px;">
+  </div>
+
+  <div style="display:flex; align-items:center; gap:5px;">
     <div class="nav-logo-icon">♻️</div>
     <div class="nav-logo-text">SIPAS <span>Donggala</span></div>
-  </a>
+  </div>
+
+</a>
   <ul class="nav-links">
     <li><a href="#neraca">Neraca Sampah</a></li>
     <li><a href="#jadwal">Jadwal</a></li>
@@ -1659,7 +1654,7 @@
   <div style="animation: fadeSlideUp 0.7s ease both;">
     <div class="hero-badge">🟢 UPT Persampahan Kabonga Besar · Aktif</div>
     <h1>Pengelolaan Sampah<br>Kabupaten <em>Donggala</em></h1>
-    <p>Platform informasi pengelolaan sampah terpadu Dinas Lingkungan Hidup Kabupaten Donggala — melayani pengaduan, jadwal pengangkutan, dan pemantauan kinerja persampahan secara real-time.</p>
+    <p>Sistem informasi pengelolaan sampah Dinas Lingkungan Hidup Kabupaten Donggala — melayani pengaduan, jadwal pengangkutan, dan pemantauan kinerja persampahan secara real-time.</p>
     <div class="hero-actions">
       <a href="#aduan" class="btn-primary">📋 Buat Pengaduan</a>
       <a href="#neraca" class="btn-outline">📊 Neraca Sampah</a>
@@ -2196,7 +2191,7 @@
     <div>
       <div class="section-label">📋 Buat Pengaduan</div>
       <h2 class="section-title">Laporkan Masalah<br>Persampahan</h2>
-      <p class="section-sub">Isi form pengaduan — laporan otomatis dikirim langsung ke WhatsApp UPT Persampahan <strong style="color:var(--lime);">085319323427</strong> dan diproses dalam 1×24 jam kerja.</p>
+      <p class="section-sub">Isi form pengaduan — laporan otomatis dikirim langsung ke WhatsApp Operator Persampahan <strong style="color:var(--lime);">085319323427</strong> dan diproses dalam 1×24 jam kerja.</p>
 
       <div class="aduan-info" style="margin-top:36px;">
         <div class="aduan-feature">
@@ -2229,7 +2224,7 @@
              onmouseover="this.style.background='#1ebe5c'" onmouseout="this.style.background='#25D366'">
             <span style="font-size:1.4rem;">💬</span>
             <div>
-              <div style="font-size:0.88rem; font-weight:700; color:white;">WhatsApp UPT Persampahan</div>
+              <div style="font-size:0.88rem; font-weight:700; color:white;">Hubungi Operator Persampahan</div>
               <div style="font-size:0.75rem; color:rgba(255,255,255,0.8);">085319323427 · Chat Langsung</div>
             </div>
           </a>
@@ -2312,10 +2307,10 @@
       </div>
 
       <button class="form-submit" id="btnSubmitAduan" onclick="submitAduan()">
-        <span id="submitText">📲 Kirim via WhatsApp ke UPT Persampahan</span>
+        <span id="submitText">📲 Kirim Ke Operator</span>
       </button>
       <div style="text-align:center; margin-top:12px; font-size:0.75rem; color:rgba(255,255,255,0.4);">
-        Laporan otomatis dikirim ke WhatsApp UPT · <strong style="color:var(--lime);">085319323427</strong>
+        Laporan otomatis dikirim Ke Operator · <strong style="color:var(--lime);">085319323427</strong>
       </div>
     </div>
   </div>
@@ -2357,7 +2352,7 @@
         <div class="nav-logo-icon">♻️</div>
         <div class="nav-logo-text" style="color:white;">SIPAS <span>Donggala</span></div>
       </div>
-      <p>Sistem Informasi Pengelolaan Sampah Terpadu — Dinas Lingkungan Hidup Kabupaten Donggala. Melayani masyarakat Kec. Banawa &amp; Banawa Tengah untuk lingkungan yang lebih bersih.</p>
+      <p>Sistem Informasi Pengelolaan Sampah — Dinas Lingkungan Hidup Kabupaten Donggala. Melayani masyarakat Kec. Banawa &amp; Banawa Tengah untuk lingkungan yang lebih bersih.</p>
     </div>
     <div class="footer-col">
       <h4>Layanan</h4>
@@ -2378,16 +2373,16 @@
     </div>
     <div class="footer-col">
       <h4>Kontak UPT</h4>
-      <a href="https://wa.me/6285319323427" target="_blank">💬 WhatsApp: 085319323427</a>
+      <a href="https://wa.me/6285319323427" target="_blank">💬 WhatsApp: Operator</a>
       <a href="#">🏢 UPT Persampahan Kabonga Besar</a>
       <a href="#">📍 Kab. Donggala, Sulawesi Tengah</a>
-      <a href="#">👩‍💼 Dra. Aritatriana, M.Si (Kadis LH)</a>
+      <a href="#">👩‍💼 Zalik Mfin/Nita (Operator Bidang)</a>
       <a href="#">🕐 Sen–Sab 06.00–18.00 WITA</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 SIPAS Donggala · Dinas Lingkungan Hidup Kab. Donggala · Data per Agustus–November 2025</span>
-    <span>v1.1.0 · Sumber: BPLH &amp; UPTD Persampahan</span>
+    <span>© 2026 SIPAS Donggala · Dinas Lingkungan Hidup Kab. Donggala · Data</span>
+    <span>Sipas 3.0  &amp; UPTD Persampahan</span>
   </div>
 </footer>
 
@@ -2396,7 +2391,7 @@
 
 <!-- FLOATING WHATSAPP -->
 <div class="wa-float">
-  <div class="wa-tooltip">💬 Chat UPT Persampahan via WhatsApp</div>
+  <div class="wa-tooltip">💬 Chat Operator Persampahan via WhatsApp</div>
   <a class="wa-btn" href="https://wa.me/6285319323427?text=Halo%2C%20saya%20ingin%20melaporkan%20masalah%20persampahan%20di%20wilayah%20saya." target="_blank" title="Chat WhatsApp UPT Persampahan">💬</a>
 </div>
 
