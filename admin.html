@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — SIPAS Donggala</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-deep: #1a3c2e;
+  --green-mid: #2d6a4f;
+  --green-bright: #40916c;
+  --green-light: #74c69d;
+  --green-pale: #b7e4c7;
+  --lime: #95d5b2;
+  --cream: #f8f5ef;
+  --warm-white: #fdfcfa;
+  --orange: #e07a3a;
+  --red: #e53e3e;
+  --blue: #3182ce;
+  --text-dark: #1a1a1a;
+  --text-mid: #4a4a4a;
+  --text-light: #888;
+  --border: rgba(45,106,79,0.15);
+  --shadow: 0 4px 24px rgba(26,60,46,0.10);
+  --radius: 14px;
+  --sidebar-w: 260px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sora',sans-serif; background:#f0f2f5; color:var(--text-dark); display:flex; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--green-deep);
+  min-height: 100vh;
+  position: fixed;
+  top:0; left:0;
+  display:flex; flex-direction:column;
+  z-index: 100;
+  overflow-y:auto;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo-title { font-size:1rem; font-weight:800; color:white; letter-spacing:-0.5px; }
+.sidebar-logo-sub { font-size:0.7rem; color:var(--green-light); font-weight:500; margin-top:2px; }
+.sidebar-badge {
+  display:inline-block; background:rgba(116,198,157,0.2); color:var(--green-light);
+  font-size:0.62rem; font-weight:700; padding:3px 8px; border-radius:100px;
+  margin-top:8px; font-family:'Space Mono',monospace; letter-spacing:1px;
+}
+.sidebar-section { padding:16px 12px 8px; }
+.sidebar-section-label { font-size:0.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.3); padding:0 8px; margin-bottom:6px; }
+.sidebar-nav { list-style:none; display:flex; flex-direction:column; gap:2px; }
+.sidebar-nav li a {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:10px;
+  text-decoration:none; color:rgba(255,255,255,0.65);
+  font-size:0.82rem; font-weight:500;
+  transition:all 0.2s; cursor:pointer;
+}
+.sidebar-nav li a:hover, .sidebar-nav li a.active {
+  background:rgba(116,198,157,0.15); color:white;
+}
+.sidebar-nav li a .nav-icon { font-size:1rem; width:20px; text-align:center; }
+.sidebar-nav li a.active { background:var(--green-bright); color:white; }
+
+/* MAIN */
+.main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+
+/* TOPBAR */
+.topbar {
+  background:white; border-bottom:1px solid #e8ecef;
+  padding:0 28px; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:50;
+}
+.topbar-title { font-size:1rem; font-weight:700; color:var(--green-deep); }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.topbar-user {
+  display:flex; align-items:center; gap:8px;
+  background:var(--cream); padding:6px 14px;
+  border-radius:100px; font-size:0.8rem; font-weight:600; color:var(--green-deep);
+}
+.save-indicator {
+  font-size:0.75rem; font-weight:600; color:var(--green-bright);
+  background:#e8f5ee; padding:5px 12px; border-radius:100px;
+  display:none; align-items:center; gap:6px;
+}
+.save-indicator.show { display:flex; }
+
+/* CONTENT */
+.content { padding:28px; flex:1; }
+
+/* PAGE SECTIONS */
+.page { display:none; }
+.page.active { display:block; }
+
+/* SECTION HEADER */
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.section-title-wrap { }
+.section-title { font-size:1.3rem; font-weight:800; color:var(--green-deep); letter-spacing:-0.5px; }
+.section-sub { font-size:0.8rem; color:var(--text-light); margin-top:4px; }
+
+/* STAT CARDS */
+.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.stat-card {
+  background:white; border-radius:var(--radius); padding:20px;
+  border:1.5px solid #eef0f2;
+  display:flex; flex-direction:column; gap:6px;
+}
+.stat-card-icon { font-size:1.5rem; }
+.stat-card-val { font-size:1.8rem; font-weight:800; font-family:'Space Mono',monospace; color:var(--green-deep); letter-spacing:-1px; }
+.stat-card-label { font-size:0.75rem; color:var(--text-light); font-weight:500; }
+.stat-card-sub { font-size:0.7rem; padding:3px 8px; border-radius:100px; width:fit-content; }
+.stat-card-sub.menunggu { background:#fff3e0; color:#e07a3a; }
+.stat-card-sub.proses { background:#e3f2fd; color:#1565c0; }
+.stat-card-sub.selesai { background:#e8f5ee; color:var(--green-mid); }
+
+/* TABLE */
+.table-wrap { background:white; border-radius:var(--radius); border:1.5px solid #eef0f2; overflow:hidden; }
+.table-toolbar {
+  padding:16px 20px; border-bottom:1px solid #eef0f2;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  flex-wrap:wrap;
+}
+.table-toolbar-title { font-size:0.88rem; font-weight:700; color:var(--text-dark); }
+.tbl { width:100%; border-collapse:collapse; }
+.tbl th {
+  background:#f7f9fb; font-size:0.72rem; font-weight:700; letter-spacing:0.5px;
+  text-transform:uppercase; color:var(--text-light);
+  padding:12px 16px; text-align:left; border-bottom:1px solid #eef0f2;
+}
+.tbl td { padding:12px 16px; border-bottom:1px solid #f5f5f5; font-size:0.83rem; vertical-align:middle; }
+.tbl tr:last-child td { border-bottom:none; }
+.tbl tr:hover td { background:#fafbfc; }
+.tbl-actions { display:flex; gap:6px; }
+
+/* BUTTONS */
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:8px; border:none;
+  font-family:'Sora',sans-serif; font-size:0.8rem; font-weight:600;
+  cursor:pointer; transition:all 0.2s; text-decoration:none;
+}
+.btn-primary { background:var(--green-mid); color:white; }
+.btn-primary:hover { background:var(--green-deep); transform:translateY(-1px); }
+.btn-outline { background:transparent; color:var(--green-mid); border:1.5px solid var(--green-pale); }
+.btn-outline:hover { background:var(--green-pale); }
+.btn-danger { background:#fff0f0; color:var(--red); border:1.5px solid #ffd5d5; }
+.btn-danger:hover { background:#ffe0e0; }
+.btn-sm { padding:5px 10px; font-size:0.73rem; }
+.btn-warning { background:#fff3e0; color:var(--orange); border:1.5px solid #ffe0b2; }
+.btn-warning:hover { background:#ffe0b2; }
+.btn-blue { background:#e3f2fd; color:var(--blue); border:1.5px solid #bbdefb; }
+.btn-blue:hover { background:#bbdefb; }
+
+/* FORM */
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.form-row.single { grid-template-columns:1fr; }
+.form-row.triple { grid-template-columns:1fr 1fr 1fr; }
+.form-group { display:flex; flex-direction:column; gap:6px; }
+.form-label { font-size:0.78rem; font-weight:600; color:var(--text-mid); }
+.form-input, .form-select, .form-textarea {
+  border:1.5px solid #dde1e7; border-radius:8px;
+  padding:9px 12px; font-family:'Sora',sans-serif; font-size:0.83rem;
+  color:var(--text-dark); background:white;
+  transition:all 0.2s; outline:none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color:var(--green-bright); box-shadow:0 0 0 3px rgba(64,145,108,0.1);
+}
+.form-textarea { resize:vertical; min-height:80px; }
+.form-hint { font-size:0.7rem; color:var(--text-light); }
+
+/* BADGE STATUS */
+.badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 10px; border-radius:100px; font-size:0.7rem; font-weight:700;
+}
+.badge-aktif { background:#e8f5ee; color:var(--green-mid); }
+.badge-tidak_aktif { background:#f5f5f5; color:var(--text-light); }
+.badge-menunggu { background:#fff3e0; color:var(--orange); }
+.badge-proses { background:#e3f2fd; color:var(--blue); }
+.badge-selesai { background:#e8f5ee; color:var(--green-mid); }
+
+/* MODAL */
+.modal-backdrop {
+  position:fixed; inset:0; background:rgba(0,0,0,0.45);
+  z-index:999; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.2s;
+}
+.modal-backdrop.open { opacity:1; pointer-events:all; }
+.modal {
+  background:white; border-radius:20px; padding:28px;
+  width:560px; max-width:95vw; max-height:90vh; overflow-y:auto;
+  transform:translateY(20px); transition:transform 0.2s;
+  box-shadow:0 24px 80px rgba(0,0,0,0.2);
+}
+.modal-backdrop.open .modal { transform:translateY(0); }
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.modal-title { font-size:1.1rem; font-weight:800; color:var(--green-deep); }
+.modal-close { background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text-light); padding:4px; }
+.modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid #eef0f2; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:9999;
+  background:var(--green-deep); color:white;
+  padding:12px 20px; border-radius:12px;
+  font-size:0.83rem; font-weight:600;
+  transform:translateY(80px); opacity:0;
+  transition:all 0.3s; pointer-events:none;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.error { background:#c53030; }
+
+/* ADUAN TABLE STATUS */
+.aduan-status-select {
+  border:1.5px solid #dde1e7; border-radius:6px;
+  padding:4px 8px; font-size:0.75rem; font-weight:600;
+  cursor:pointer; background:white;
+}
+
+/* LOGIN */
+.login-screen {
+  position:fixed; inset:0; background:var(--green-deep);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9999;
+}
+.login-card {
+  background:white; border-radius:24px; padding:40px;
+  width:380px; text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,0.3);
+}
+.login-logo { font-size:2.5rem; margin-bottom:16px; }
+.login-title { font-size:1.4rem; font-weight:800; color:var(--green-deep); margin-bottom:4px; }
+.login-sub { font-size:0.83rem; color:var(--text-light); margin-bottom:28px; }
+.login-input {
+  width:100%; border:1.5px solid #dde1e7; border-radius:10px;
+  padding:12px 16px; font-family:'Sora',sans-serif; font-size:0.9rem;
+  outline:none; text-align:center; letter-spacing:4px;
+  margin-bottom:12px; transition:border-color 0.2s;
+}
+.login-input:focus { border-color:var(--green-bright); }
+.login-btn {
+  width:100%; background:var(--green-mid); color:white;
+  border:none; border-radius:10px; padding:12px;
+  font-family:'Sora',sans-serif; font-size:0.9rem; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+}
+.login-btn:hover { background:var(--green-deep); }
+.login-error { color:#e53e3e; font-size:0.78rem; margin-top:8px; display:none; }
+
+/* GRID EDITABLE */
+.editable-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+.editable-card {
+  background:white; border:1.5px solid #eef0f2;
+  border-radius:var(--radius); padding:20px;
+  transition:border-color 0.2s;
+}
+.editable-card:hover { border-color:var(--green-pale); }
+.editable-card-label { font-size:0.72rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-light); margin-bottom:8px; }
+
+/* SEARCH */
+.search-input {
+  border:1.5px solid #dde1e7; border-radius:8px;
+  padding:7px 14px; font-family:'Sora',sans-serif; font-size:0.82rem;
+  outline:none; transition:border-color 0.2s; min-width:200px;
+}
+.search-input:focus { border-color:var(--green-bright); }
+
+/* CHART BAR */
+.mini-chart { display:flex; flex-direction:column; gap:8px; }
+.mini-bar-item { display:flex; align-items:center; gap:10px; }
+.mini-bar-label { font-size:0.75rem; color:var(--text-mid); width:140px; flex-shrink:0; }
+.mini-bar-track { flex:1; height:8px; background:#f0f2f5; border-radius:4px; overflow:hidden; }
+.mini-bar-fill { height:100%; border-radius:4px; background:var(--green-bright); transition:width 0.5s ease; }
+.mini-bar-fill.danger { background:#e53e3e; }
+.mini-bar-val { font-size:0.72rem; font-family:'Space Mono',monospace; color:var(--text-mid); width:80px; text-align:right; flex-shrink:0; }
+
+/* API URL hint */
+.api-url-box {
+  background:#1a1a2e; color:#00d2ff;
+  border-radius:8px; padding:10px 16px;
+  font-family:'Space Mono',monospace; font-size:0.75rem;
+  margin-top:8px; letter-spacing:0.3px;
+}
+
+/* Responsive */
+@media (max-width:768px) {
+  .sidebar { transform:translateX(-100%); }
+  .main { margin-left:0; }
+  .stat-row { grid-template-columns:1fr 1fr; }
+  .editable-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🗑️</div>
+    <div class="login-title">SIPAS Admin</div>
+    <div class="login-sub">Masukkan token admin untuk melanjutkan</div>
+    <input class="login-input" type="password" id="loginToken" placeholder="••••••••••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">🔐 Masuk ke Dashboard</button>
+    <div class="login-error" id="loginError">❌ Token tidak valid. Coba lagi.</div>
+    <div style="margin-top:16px; font-size:0.72rem; color:var(--text-light);">Default token: <code>sipas-admin-2025</code></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-title">🗑️ SIPAS Admin</div>
+    <div class="sidebar-logo-sub">Sistem Informasi Pengelolaan Sampah</div>
+    <div class="sidebar-badge">KAB. DONGGALA</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Utama</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" class="active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a href="#" onclick="showPage('aduan',this)"><span class="nav-icon">📋</span> Manajemen Aduan</a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Data Konten</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="showPage('hero',this)"><span class="nav-icon">🏠</span> Hero & Statistik</a></li>
+      <li><a href="#" onclick="showPage('neraca',this)"><span class="nav-icon">⚖️</span> Neraca Sampah</a></li>
+      <li><a href="#" onclick="showPage('armada',this)"><span class="nav-icon">🚛</span> Armada</a></li>
+      <li><a href="#" onclick="showPage('tpa',this)"><span class="nav-icon">🏭</span> TPA & Fasilitas</a></li>
+      <li><a href="#" onclick="showPage('jadwal',this)"><span class="nav-icon">📅</span> Jadwal Pengangkutan</a></li>
+      <li><a href="#" onclick="showPage('datasampah',this)"><span class="nav-icon">📈</span> Data Timbulan</a></li>
+      <li><a href="#" onclick="showPage('kelurahan',this)"><span class="nav-icon">🗺️</span> Kelurahan / Desa</a></li>
+      <li><a href="#" onclick="showPage('edukasi',this)"><span class="nav-icon">📚</span> Edukasi & Program</a></li>
+      <li><a href="#" onclick="showPage('kontak',this)"><span class="nav-icon">📞</span> Kontak & Info</a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Sistem</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="showPage('settings',this)"><span class="nav-icon">⚙️</span> Pengaturan API</a></li>
+      <li><a href="javascript:doLogout()"><span class="nav-icon">🔓</span> Keluar</a></li>
+    </ul>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">📊 Dashboard</div>
+    <div class="topbar-right">
+      <div class="save-indicator" id="saveIndicator">✅ Tersimpan</div>
+      <div class="topbar-user">👤 Admin SIPAS</div>
+      <button class="btn btn-danger btn-sm" onclick="doLogout()" style="border-radius:100px;padding:6px 14px;">🔓 Log Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Overview Dashboard</div>
+          <div class="section-sub">Ringkasan data SIPAS Donggala secara real-time</div>
+        </div>
+        <button class="btn btn-outline" onclick="loadDashboard()">🔄 Refresh</button>
+      </div>
+
+      <div class="stat-row" id="dashStatRow">
+        <div class="stat-card"><div class="stat-card-icon">📋</div><div class="stat-card-val" id="ds-total">—</div><div class="stat-card-label">Total Aduan</div></div>
+        <div class="stat-card"><div class="stat-card-icon">⏳</div><div class="stat-card-val" id="ds-menunggu">—</div><div class="stat-card-label">Menunggu</div><div class="stat-card-sub menunggu">Perlu tindakan</div></div>
+        <div class="stat-card"><div class="stat-card-icon">🔄</div><div class="stat-card-val" id="ds-proses">—</div><div class="stat-card-label">Diproses</div><div class="stat-card-sub proses">Sedang ditangani</div></div>
+        <div class="stat-card"><div class="stat-card-icon">✅</div><div class="stat-card-val" id="ds-selesai">—</div><div class="stat-card-label">Selesai</div><div class="stat-card-sub selesai">Tuntas</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="table-toolbar-title">🕐 Aduan Terbaru</div>
+          <button class="btn btn-outline btn-sm" onclick="showPage('aduan',null)">Lihat Semua →</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Tiket</th><th>Nama</th><th>Jenis</th><th>Wilayah</th><th>Status</th><th>Waktu</th></tr></thead>
+          <tbody id="dash-recent-aduan"><tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ADUAN ===== -->
+    <div class="page" id="page-aduan">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Manajemen Aduan</div>
+          <div class="section-sub">Kelola semua laporan pengaduan masyarakat</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <select class="form-select" id="filterStatus" onchange="loadAduan()" style="width:160px;">
+            <option value="">Semua Status</option>
+            <option value="menunggu">Menunggu</option>
+            <option value="proses">Diproses</option>
+            <option value="selesai">Selesai</option>
+          </select>
+          <button class="btn btn-outline" onclick="loadAduan()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="table-toolbar-title">📋 Daftar Aduan</div>
+          <input class="search-input" placeholder="🔍 Cari tiket / nama..." id="aduanSearch" oninput="filterAduanTable()">
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Tiket</th><th>Pelapor</th><th>Jenis Masalah</th><th>Lokasi</th><th>Status</th><th>Catatan Admin</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+          <tbody id="aduanTableBody"><tr><td colspan="8" style="text-align:center;color:var(--text-light);padding:24px;">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== HERO STATS ===== -->
+    <div class="page" id="page-hero">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Hero & Statistik Utama</div>
+          <div class="section-sub">Angka yang tampil di bagian atas halaman SIPAS</div>
+        </div>
+      </div>
+      <div class="editable-grid" id="heroGrid">
+        <div style="text-align:center;padding:40px;color:var(--text-light);">Memuat...</div>
+      </div>
+    </div>
+
+    <!-- ===== NERACA ===== -->
+    <div class="page" id="page-neraca">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Neraca Sampah</div>
+          <div class="section-sub">Data ringkasan neraca pengelolaan sampah Kabupaten Donggala</div>
+        </div>
+      </div>
+      <div class="editable-grid" id="neracaGrid"></div>
+    </div>
+
+    <!-- ===== ARMADA ===== -->
+    <div class="page" id="page-armada">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Armada Pengangkutan</div>
+          <div class="section-sub">Data unit armada UPT Persampahan Kabonga Besar</div>
+        </div>
+        <button class="btn btn-primary" onclick="openArmadaModal()">➕ Tambah Armada</button>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Icon</th><th>Nama</th><th>Jumlah</th><th>Ritasi</th><th>Volume</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="armadaTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TPA ===== -->
+    <div class="page" id="page-tpa">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">TPA & Fasilitas</div>
+          <div class="section-sub">Profil TPA Kabonga Besar dan fasilitas pendukung</div>
+        </div>
+      </div>
+      <div class="editable-grid" id="tpaGrid"></div>
+      <div style="margin-top:24px;">
+        <div class="section-title" style="font-size:1rem;margin-bottom:16px;">🏗️ Fasilitas TPS</div>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr><th>Icon</th><th>Nama</th><th>Jumlah</th><th>Label</th><th>Sub</th><th>Aksi</th></tr></thead>
+            <tbody id="tpsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== JADWAL ===== -->
+    <div class="page" id="page-jadwal">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Jadwal Pengangkutan</div>
+          <div class="section-sub">Jadwal harian UPT Persampahan per kecamatan</div>
+        </div>
+        <button class="btn btn-primary" onclick="openJadwalModal()">➕ Tambah Jadwal</button>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Hari</th><th>Wilayah Dilayani</th><th>Jam</th><th>Kecamatan</th><th>Aksi</th></tr></thead>
+          <tbody id="jadwalTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== DATA SAMPAH ===== -->
+    <div class="page" id="page-datasampah">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Data Timbulan Sampah</div>
+          <div class="section-sub">Data per kecamatan — digunakan untuk analisis pada halaman SIPAS</div>
+        </div>
+      </div>
+      <div id="dataSampahCards" style="display:flex;flex-direction:column;gap:20px;"></div>
+    </div>
+
+    <!-- ===== KELURAHAN ===== -->
+    <div class="page" id="page-kelurahan">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Kelurahan / Desa</div>
+          <div class="section-sub">Daftar kelurahan untuk form aduan</div>
+        </div>
+        <button class="btn btn-primary" onclick="openKelModal()">➕ Tambah Kelurahan</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="table-wrap">
+          <div class="table-toolbar"><div class="table-toolbar-title">🏙️ Kec. Banawa</div></div>
+          <table class="tbl"><thead><tr><th>Nama</th><th>Aksi</th></tr></thead><tbody id="kelBanawa"></tbody></table>
+        </div>
+        <div class="table-wrap">
+          <div class="table-toolbar"><div class="table-toolbar-title">🏡 Kec. Banawa Tengah</div></div>
+          <table class="tbl"><thead><tr><th>Nama</th><th>Aksi</th></tr></thead><tbody id="kelBanawaT"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EDUKASI ===== -->
+    <div class="page" id="page-edukasi">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Edukasi & Program</div>
+          <div class="section-sub">Konten kartu edukasi yang tampil di halaman SIPAS</div>
+        </div>
+        <button class="btn btn-primary" onclick="openEduModal()">➕ Tambah Konten</button>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Icon</th><th>Tag</th><th>Judul</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
+          <tbody id="eduTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== KONTAK ===== -->
+    <div class="page" id="page-kontak">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Kontak & Info</div>
+          <div class="section-sub">Informasi kontak UPT Persampahan</div>
+        </div>
+      </div>
+      <div class="editable-grid" id="kontakGrid"></div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div class="page" id="page-settings">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-title">Pengaturan API</div>
+          <div class="section-sub">Konfigurasi koneksi ke backend SIPAS</div>
+        </div>
+      </div>
+      <div class="editable-card" style="max-width:600px;">
+        <div class="editable-card-label">URL Backend Server</div>
+        <input class="form-input" id="settingApiUrl" placeholder="http://localhost:3001" value="http://localhost:3001">
+        <div class="form-hint" style="margin-top:6px;">URL server Node.js backend SIPAS. Ubah sesuai deployment.</div>
+        <div class="api-url-box" id="apiUrlPreview">http://localhost:3001/api/public/all</div>
+        <div style="margin-top:16px;">
+          <div class="editable-card-label">Admin Token</div>
+          <input class="form-input" id="settingToken" type="password" placeholder="Token admin">
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
+          <button class="btn btn-outline" onclick="testConnection()">🔌 Test Koneksi</button>
+        </div>
+        <div id="connResult" style="margin-top:12px;font-size:0.8rem;"></div>
+      </div>
+
+      <div class="editable-card" style="max-width:600px;margin-top:20px;">
+        <div class="editable-card-label">Cara Menjalankan Backend</div>
+        <div style="font-size:0.82rem;color:var(--text-mid);line-height:1.8;">
+          <p>1. Install dependencies:</p>
+          <div class="api-url-box">cd sipas/backend && npm install</div>
+          <p style="margin-top:10px;">2. Jalankan server:</p>
+          <div class="api-url-box">node server.js</div>
+          <p style="margin-top:10px;">3. Server berjalan di port 3001 secara default.</p>
+          <p style="margin-top:8px;">4. Set environment variable untuk production:</p>
+          <div class="api-url-box">PORT=3001 ADMIN_TOKEN=password_kuat node server.js</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- MODALS -->
+<div class="modal-backdrop" id="modalArmada">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalArmadaTitle">Tambah Armada</div>
+      <button class="modal-close" onclick="closeModal('modalArmada')">✕</button>
+    </div>
+    <input type="hidden" id="armadaEditId">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Icon Emoji</label><input class="form-input" id="a-icon" placeholder="🚛"></div>
+      <div class="form-group"><label class="form-label">Nama Armada</label><input class="form-input" id="a-nama" placeholder="Dump Truck"></div>
+    </div>
+    <div class="form-row triple">
+      <div class="form-group"><label class="form-label">Jumlah Unit</label><input class="form-input" type="number" id="a-jumlah" placeholder="4"></div>
+      <div class="form-group"><label class="form-label">Ritasi/Hari</label><input class="form-input" id="a-ritasi" placeholder="3×"></div>
+      <div class="form-group"><label class="form-label">Volume</label><input class="form-input" id="a-volume" placeholder="6 m³/hari"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Keterangan Unit</label><input class="form-input" id="a-unit" placeholder="Unit · Pemda Kab. Donggala"></div>
+      <div class="form-group"><label class="form-label">Kepemilikan</label><input class="form-input" id="a-kepemilikan" placeholder="Pemda"></div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-select" id="a-status">
+          <option value="aktif">✅ Aktif</option>
+          <option value="tidak_aktif">⚪ Tidak Aktif</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalArmada')">Batal</button>
+      <button class="btn btn-primary" onclick="saveArmada()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalJadwal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalJadwalTitle">Tambah Jadwal</div>
+      <button class="modal-close" onclick="closeModal('modalJadwal')">✕</button>
+    </div>
+    <input type="hidden" id="jadwalEditId">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Hari</label>
+        <select class="form-select" id="j-hari">
+          <option>Senin</option><option>Selasa</option><option>Rabu</option>
+          <option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Jam Pengangkutan</label><input class="form-input" id="j-jam" placeholder="🌅 Pagi 06.00–08.00 & 🌆 Sore 16.00–18.00 WITA"></div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group">
+        <label class="form-label">Wilayah yang Dilayani</label>
+        <textarea class="form-textarea" id="j-wilayah" placeholder="Kel. Kabonga Besar&#10;Kel. Kabonga Kecil&#10;📍 Desa Towale (Banawa Tengah)" style="min-height:120px;"></textarea>
+        <div class="form-hint">Pisahkan setiap wilayah dengan Enter (baris baru)</div>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group"><label class="form-label">Kecamatan (untuk filter)</label><input class="form-input" id="j-kec" placeholder="banawa,banawaT">
+        <div class="form-hint">Gunakan: banawa · banawaT · (kosong = Minggu/libur)</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalJadwal')">Batal</button>
+      <button class="btn btn-primary" onclick="saveJadwal()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalKel">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Tambah Kelurahan / Desa</div>
+      <button class="modal-close" onclick="closeModal('modalKel')">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Kecamatan</label>
+        <select class="form-select" id="k-kec">
+          <option value="banawa">Kec. Banawa</option>
+          <option value="banawa_tengah">Kec. Banawa Tengah</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Nama Kelurahan/Desa</label><input class="form-input" id="k-nama" placeholder="Kel. Kabonga Besar"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalKel')">Batal</button>
+      <button class="btn btn-primary" onclick="saveKelurahan()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalEdu">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalEduTitle">Tambah Konten Edukasi</div>
+      <button class="modal-close" onclick="closeModal('modalEdu')">✕</button>
+    </div>
+    <input type="hidden" id="eduEditId">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Icon Emoji</label><input class="form-input" id="e-icon" placeholder="♻️"></div>
+      <div class="form-group"><label class="form-label">Tag Kategori</label><input class="form-input" id="e-tag" placeholder="Organik"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Type (CSS class)</label><input class="form-input" id="e-type" placeholder="organic / anorganic / b3 / recycle / program"></div>
+      <div class="form-group"><label class="form-label">Judul</label><input class="form-input" id="e-title" placeholder="Sampah Organik"></div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-textarea" id="e-desc"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalEdu')">Batal</button>
+      <button class="btn btn-primary" onclick="saveEdu()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalAduanDetail">
+  <div class="modal" style="width:640px;">
+    <div class="modal-header">
+      <div class="modal-title" id="aduanDetailTitle">Detail Aduan</div>
+      <button class="modal-close" onclick="closeModal('modalAduanDetail')">✕</button>
+    </div>
+    <div id="aduanDetailContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalAduanDetail')">Tutup</button>
+      <button class="btn btn-primary" onclick="updateAduanStatus()">💾 Update Status</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+let API_BASE = localStorage.getItem('sipas_api_base') || 'http://localhost:3001';
+let ADMIN_TOKEN = localStorage.getItem('sipas_admin_token') || '';
+let currentAduanId = null;
+
+function getHeaders() {
+  return { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN };
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API_BASE + path, {
+    headers: getHeaders(),
+    ...opts
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════
+function doLogin() {
+  const token = document.getElementById('loginToken').value.trim();
+  if (!token) return;
+  ADMIN_TOKEN = token;
+  localStorage.setItem('sipas_admin_token', token);
+  // Coba verifikasi dengan API
+  fetch(API_BASE + '/api/admin/dashboard-stats', { headers: getHeaders() })
+    .then(r => {
+      if (r.ok) {
+        document.getElementById('loginScreen').style.display = 'none';
+        loadDashboard();
+        // Isi settings
+        document.getElementById('settingApiUrl').value = API_BASE;
+        document.getElementById('settingToken').value = ADMIN_TOKEN;
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    })
+    .catch(() => {
+      // Jika backend belum berjalan, tetap masuk dengan token yang disimpan
+      document.getElementById('loginScreen').style.display = 'none';
+      showToast('⚠️ Backend tidak terhubung. Atur URL di Pengaturan.', 'error');
+    });
+}
+
+function doLogout() {
+  localStorage.removeItem('sipas_admin_token');
+  location.reload();
+}
+
+// Auto-login if token stored
+window.addEventListener('DOMContentLoaded', () => {
+  const stored = localStorage.getItem('sipas_admin_token');
+  if (stored) {
+    document.getElementById('loginToken').value = stored;
+    doLogin();
+  }
+  document.getElementById('settingApiUrl').value = API_BASE;
+  document.getElementById('settingToken').value = ADMIN_TOKEN;
+  updateApiPreview();
+});
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showPage(page, linkEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+
+  const titles = {
+    dashboard:'📊 Dashboard', aduan:'📋 Manajemen Aduan',
+    hero:'🏠 Hero & Statistik', neraca:'⚖️ Neraca Sampah',
+    armada:'🚛 Armada', tpa:'🏭 TPA & Fasilitas',
+    jadwal:'📅 Jadwal Pengangkutan', datasampah:'📈 Data Timbulan',
+    kelurahan:'🗺️ Kelurahan / Desa', edukasi:'📚 Edukasi & Program',
+    kontak:'📞 Kontak & Info', settings:'⚙️ Pengaturan API'
+  };
+  document.getElementById('topbarTitle').textContent = titles[page] || page;
+
+  const loaders = {
+    dashboard: loadDashboard, aduan: loadAduan, hero: loadHero,
+    neraca: loadNeraca, armada: loadArmada, tpa: loadTpa,
+    jadwal: loadJadwal, datasampah: loadDataSampah,
+    kelurahan: loadKelurahan, edukasi: loadEdukasi, kontak: loadKontak
+  };
+  if (loaders[page]) loaders[page]();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function showSaved() {
+  const el = document.getElementById('saveIndicator');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const data = await apiFetch('/api/admin/dashboard-stats');
+    document.getElementById('ds-total').textContent = data.totalAduan;
+    document.getElementById('ds-menunggu').textContent = data.menunggu;
+    document.getElementById('ds-proses').textContent = data.proses;
+    document.getElementById('ds-selesai').textContent = data.selesai;
+
+    const jenisMap = {
+      tidak_diangkut:'Tidak diangkut', terlambat:'Terlambat',
+      tps_penuh:'TPS penuh', bau_busuk:'Bau busuk',
+      ilegal_dumping:'Illegal dumping', bank_sampah:'Bank sampah', lainnya:'Lainnya'
+    };
+    document.getElementById('dash-recent-aduan').innerHTML = data.recentAduan.length
+      ? data.recentAduan.map(a => `
+        <tr>
+          <td><code style="font-size:0.7rem;background:#f5f5f5;padding:2px 6px;border-radius:4px;">${a.tiket}</code></td>
+          <td><strong>${a.nama}</strong><br><span style="font-size:0.73rem;color:var(--text-light);">${a.telp}</span></td>
+          <td>${jenisMap[a.jenis] || a.jenis}</td>
+          <td>${a.kecamatan === 'banawa' ? 'Kec. Banawa' : 'Kec. Banawa Tengah'}</td>
+          <td><span class="badge badge-${a.status}">${a.status}</span></td>
+          <td style="font-size:0.75rem;color:var(--text-light);">${new Date(a.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:24px;">Belum ada aduan</td></tr>';
+  } catch (e) {
+    document.getElementById('dash-recent-aduan').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#e53e3e;padding:24px;">❌ Backend tidak terhubung. Periksa Pengaturan API.</td></tr>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADUAN
+// ═══════════════════════════════════════════════════════════
+let aduanData = [];
+const jenisMap = {
+  tidak_diangkut:'Sampah tidak diangkut', terlambat:'Pengangkutan terlambat',
+  tps_penuh:'TPS/TPST penuh', bau_busuk:'Bau tidak sedap',
+  ilegal_dumping:'Pembuangan liar', bank_sampah:'Masalah bank sampah', lainnya:'Lainnya'
+};
+
+async function loadAduan() {
+  const status = document.getElementById('filterStatus').value;
+  try {
+    const data = await apiFetch('/api/admin/aduan' + (status ? '?status=' + status : ''));
+    aduanData = data.aduan;
+    renderAduanTable(aduanData);
+  } catch (e) {
+    document.getElementById('aduanTableBody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:#e53e3e;padding:24px;">❌ Backend tidak terhubung</td></tr>';
+  }
+}
+
+function filterAduanTable() {
+  const q = document.getElementById('aduanSearch').value.toLowerCase();
+  const filtered = aduanData.filter(a => a.tiket.toLowerCase().includes(q) || a.nama.toLowerCase().includes(q) || a.lokasi.toLowerCase().includes(q));
+  renderAduanTable(filtered);
+}
+
+function renderAduanTable(data) {
+  document.getElementById('aduanTableBody').innerHTML = data.length
+    ? data.map(a => `
+      <tr>
+        <td><code style="font-size:0.7rem;background:#f5f5f5;padding:2px 6px;border-radius:4px;">${a.tiket}</code></td>
+        <td><strong>${a.nama}</strong><br><span style="font-size:0.73rem;color:var(--text-light);">${a.telp}</span></td>
+        <td>${jenisMap[a.jenis] || a.jenis}</td>
+        <td style="max-width:160px;font-size:0.78rem;">${a.lokasi}</td>
+        <td>
+          <select class="aduan-status-select" onchange="quickUpdateStatus(${a.id}, this.value)">
+            <option value="menunggu" ${a.status==='menunggu'?'selected':''}>⏳ Menunggu</option>
+            <option value="proses" ${a.status==='proses'?'selected':''}>🔄 Diproses</option>
+            <option value="selesai" ${a.status==='selesai'?'selected':''}>✅ Selesai</option>
+          </select>
+        </td>
+        <td style="font-size:0.78rem;max-width:160px;">${a.catatan_admin || '<span style="color:var(--text-light);">—</span>'}</td>
+        <td style="font-size:0.73rem;color:var(--text-light);">${new Date(a.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+        <td>
+          <div class="tbl-actions">
+            <button class="btn btn-blue btn-sm" onclick="openAduanDetail(${a.id})">👁️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAduan(${a.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="8" style="text-align:center;color:var(--text-light);padding:24px;">Tidak ada aduan ditemukan</td></tr>';
+}
+
+async function quickUpdateStatus(id, status) {
+  try {
+    await apiFetch('/api/admin/aduan/' + id + '/status', { method:'PUT', body: JSON.stringify({ status }) });
+    showToast('✅ Status diperbarui');
+    loadDashboard();
+  } catch (e) { showToast('❌ Gagal update', 'error'); }
+}
+
+function openAduanDetail(id) {
+  const a = aduanData.find(x => x.id === id);
+  if (!a) return;
+  currentAduanId = id;
+  document.getElementById('aduanDetailTitle').textContent = '📋 ' + a.tiket;
+  document.getElementById('aduanDetailContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><div class="form-label">Nama Pelapor</div><div style="font-weight:600;">${a.nama}</div></div>
+      <div><div class="form-label">Telepon</div><div style="font-weight:600;">${a.telp}</div></div>
+      <div><div class="form-label">Kecamatan</div><div>${a.kecamatan === 'banawa' ? 'Kec. Banawa' : 'Kec. Banawa Tengah'}</div></div>
+      <div><div class="form-label">Kelurahan</div><div>${a.kelurahan || '—'}</div></div>
+      <div><div class="form-label">Jenis Masalah</div><div>${jenisMap[a.jenis] || a.jenis}</div></div>
+      <div><div class="form-label">Shift</div><div>${a.shift || '—'}</div></div>
+    </div>
+    <div style="margin-bottom:12px;"><div class="form-label">Lokasi Detail</div><div style="background:#f7f9fb;padding:10px;border-radius:8px;">${a.lokasi}</div></div>
+    <div style="margin-bottom:16px;"><div class="form-label">Deskripsi</div><div style="background:#f7f9fb;padding:10px;border-radius:8px;line-height:1.6;">${a.deskripsi}</div></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Update Status</label>
+        <select class="form-select" id="detail-status">
+          <option value="menunggu" ${a.status==='menunggu'?'selected':''}>⏳ Menunggu</option>
+          <option value="proses" ${a.status==='proses'?'selected':''}>🔄 Diproses</option>
+          <option value="selesai" ${a.status==='selesai'?'selected':''}>✅ Selesai</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Catatan Admin</label>
+      <textarea class="form-textarea" id="detail-catatan">${a.catatan_admin || ''}</textarea>
+    </div>`;
+  openModal('modalAduanDetail');
+}
+
+async function updateAduanStatus() {
+  try {
+    const status = document.getElementById('detail-status').value;
+    const catatan_admin = document.getElementById('detail-catatan').value;
+    await apiFetch('/api/admin/aduan/' + currentAduanId + '/status', { method:'PUT', body: JSON.stringify({ status, catatan_admin }) });
+    showToast('✅ Aduan diperbarui'); closeModal('modalAduanDetail'); loadAduan();
+  } catch (e) { showToast('❌ Gagal', 'error'); }
+}
+
+async function deleteAduan(id) {
+  if (!confirm('Hapus aduan ini?')) return;
+  try {
+    await apiFetch('/api/admin/aduan/' + id, { method:'DELETE' });
+    showToast('🗑️ Aduan dihapus'); loadAduan();
+  } catch (e) { showToast('❌ Gagal hapus', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// HERO STATS
+// ═══════════════════════════════════════════════════════════
+async function loadHero() {
+  try {
+    const data = await apiFetch('/api/admin/hero-stats');
+    document.getElementById('heroGrid').innerHTML = data.map(d => `
+      <div class="editable-card">
+        <div class="editable-card-label">${d.key.toUpperCase()}</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Nilai</label><input class="form-input" id="hero-val-${d.id}" value="${d.value}" oninput="autoSaveHero(${d.id})"></div>
+          <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="hero-lbl-${d.id}" value="${d.label}" oninput="autoSaveHero(${d.id})"></div>
+        </div>
+      </div>`).join('');
+  } catch (e) { document.getElementById('heroGrid').innerHTML = '<p style="color:#e53e3e;">Backend tidak terhubung</p>'; }
+}
+
+let heroTimers = {};
+function autoSaveHero(id) {
+  clearTimeout(heroTimers[id]);
+  heroTimers[id] = setTimeout(async () => {
+    const value = document.getElementById('hero-val-' + id).value;
+    const label = document.getElementById('hero-lbl-' + id).value;
+    try {
+      await apiFetch('/api/admin/hero-stats/' + id, { method:'PUT', body: JSON.stringify({ value, label }) });
+      showSaved();
+    } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+  }, 800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// NERACA
+// ═══════════════════════════════════════════════════════════
+async function loadNeraca() {
+  try {
+    const data = await apiFetch('/api/admin/neraca');
+    document.getElementById('neracaGrid').innerHTML = data.map(d => `
+      <div class="editable-card">
+        <div class="editable-card-label">${d.key}</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Nilai</label><input class="form-input" type="number" id="n-val-${d.id}" value="${d.value}" oninput="autoSaveNeraca(${d.id})"></div>
+          <div class="form-group"><label class="form-label">Satuan</label><input class="form-input" id="n-unit-${d.id}" value="${d.unit || ''}" oninput="autoSaveNeraca(${d.id})"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="n-lbl-${d.id}" value="${d.label}" oninput="autoSaveNeraca(${d.id})"></div>
+        <div class="form-group" style="margin-top:8px;"><label class="form-label">Keterangan</label><input class="form-input" id="n-sub-${d.id}" value="${d.sub || ''}" oninput="autoSaveNeraca(${d.id})"></div>
+      </div>`).join('');
+  } catch (e) { document.getElementById('neracaGrid').innerHTML = '<p style="color:#e53e3e;">Backend tidak terhubung</p>'; }
+}
+
+let neracaTimers = {};
+function autoSaveNeraca(id) {
+  clearTimeout(neracaTimers[id]);
+  neracaTimers[id] = setTimeout(async () => {
+    const value = document.getElementById('n-val-' + id).value;
+    const unit = document.getElementById('n-unit-' + id).value;
+    const label = document.getElementById('n-lbl-' + id).value;
+    const sub = document.getElementById('n-sub-' + id).value;
+    try {
+      await apiFetch('/api/admin/neraca/' + id, { method:'PUT', body: JSON.stringify({ value, unit, label, sub }) });
+      showSaved();
+    } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+  }, 800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ARMADA
+// ═══════════════════════════════════════════════════════════
+async function loadArmada() {
+  try {
+    const data = await apiFetch('/api/admin/armada');
+    document.getElementById('armadaTableBody').innerHTML = data.map(a => `
+      <tr>
+        <td style="font-size:1.5rem;">${a.icon}</td>
+        <td><strong>${a.nama}</strong><br><span style="font-size:0.73rem;color:var(--text-light);">${a.unit}</span></td>
+        <td><span style="font-family:'Space Mono';font-size:1.2rem;font-weight:800;color:var(--green-mid);">${a.jumlah}</span></td>
+        <td>${a.ritasi}</td>
+        <td>${a.volume}</td>
+        <td><span class="badge badge-${a.status}">${a.status === 'aktif' ? '✅ Aktif' : '⚪ Tidak Aktif'}</span></td>
+        <td>
+          <div class="tbl-actions">
+            <button class="btn btn-warning btn-sm" onclick="editArmada(${a.id},'${a.icon.replace(/'/g,"\\'")}','${a.nama.replace(/'/g,"\\'")}',${a.jumlah},'${a.ritasi}','${a.volume}','${a.unit.replace(/'/g,"\\'")}','${a.kepemilikan}','${a.status}')">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteArmada(${a.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (e) { showToast('❌ Backend tidak terhubung', 'error'); }
+}
+
+function openArmadaModal(editMode = false) {
+  document.getElementById('modalArmadaTitle').textContent = editMode ? 'Edit Armada' : 'Tambah Armada';
+  if (!editMode) {
+    document.getElementById('armadaEditId').value = '';
+    ['a-icon','a-nama','a-jumlah','a-ritasi','a-volume','a-unit','a-kepemilikan'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('a-status').value = 'aktif';
+  }
+  openModal('modalArmada');
+}
+
+function editArmada(id, icon, nama, jumlah, ritasi, volume, unit, kep, status) {
+  document.getElementById('armadaEditId').value = id;
+  document.getElementById('a-icon').value = icon;
+  document.getElementById('a-nama').value = nama;
+  document.getElementById('a-jumlah').value = jumlah;
+  document.getElementById('a-ritasi').value = ritasi;
+  document.getElementById('a-volume').value = volume;
+  document.getElementById('a-unit').value = unit;
+  document.getElementById('a-kepemilikan').value = kep;
+  document.getElementById('a-status').value = status;
+  openArmadaModal(true);
+}
+
+async function saveArmada() {
+  const id = document.getElementById('armadaEditId').value;
+  const payload = {
+    icon: document.getElementById('a-icon').value,
+    nama: document.getElementById('a-nama').value,
+    jumlah: +document.getElementById('a-jumlah').value,
+    ritasi: document.getElementById('a-ritasi').value,
+    volume: document.getElementById('a-volume').value,
+    unit: document.getElementById('a-unit').value,
+    kepemilikan: document.getElementById('a-kepemilikan').value,
+    status: document.getElementById('a-status').value
+  };
+  try {
+    if (id) {
+      await apiFetch('/api/admin/armada/' + id, { method:'PUT', body: JSON.stringify(payload) });
+    } else {
+      await apiFetch('/api/admin/armada', { method:'POST', body: JSON.stringify(payload) });
+    }
+    showToast('✅ Armada tersimpan'); closeModal('modalArmada'); loadArmada();
+  } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+}
+
+async function deleteArmada(id) {
+  if (!confirm('Hapus armada ini?')) return;
+  try {
+    await apiFetch('/api/admin/armada/' + id, { method:'DELETE' });
+    showToast('🗑️ Armada dihapus'); loadArmada();
+  } catch (e) { showToast('❌ Gagal hapus', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TPA
+// ═══════════════════════════════════════════════════════════
+async function loadTpa() {
+  try {
+    const [tpaData, tpsData] = await Promise.all([
+      apiFetch('/api/admin/tpa'),
+      apiFetch('/api/admin/fasilitas-tps')
+    ]);
+
+    const labels = {
+      nama:'Nama TPA', status:'Status', dasar_hukum:'Dasar Hukum',
+      cakupan:'Cakupan Layanan', sdm:'SDM', fasilitas:'Fasilitas',
+      kondisi:'Kondisi', biaya_operasional:'Biaya Operasional UPTD',
+      bank_sampah_induk:'Bank Sampah Induk (Ton/Hari)',
+      bsu_jumlah:'Jumlah BSU', bsu_volume:'Volume BSU (Ton/Hari)',
+      tpst_jumlah:'Jumlah TPST', tpst_volume:'Volume TPST (Ton/Hari)',
+      apbd:'APBD Kab. Donggala', alokasi_sampah:'Alokasi Pengelolaan Sampah',
+      proporsi_apbd:'Proporsi Anggaran', kepala_dinas:'Kepala Dinas LH',
+      nip_kepala_dinas:'NIP Kepala Dinas', sumber_data:'Sumber Data'
+    };
+
+    document.getElementById('tpaGrid').innerHTML = tpaData.map(d => `
+      <div class="editable-card">
+        <div class="editable-card-label">${labels[d.key] || d.key}</div>
+        <input class="form-input" id="tpa-${d.key}" value="${d.value}" oninput="autoSaveTpa('${d.key}')">
+      </div>`).join('');
+
+    document.getElementById('tpsTableBody').innerHTML = tpsData.map(t => `
+      <tr>
+        <td style="font-size:1.3rem;">${t.icon}</td>
+        <td><input class="form-input" id="tps-nama-${t.id}" value="${t.nama}" oninput="autoSaveTps(${t.id})" style="max-width:180px;"></td>
+        <td><input class="form-input" type="number" id="tps-jml-${t.id}" value="${t.jumlah}" oninput="autoSaveTps(${t.id})" style="width:80px;"></td>
+        <td><input class="form-input" id="tps-lbl-${t.id}" value="${t.label}" oninput="autoSaveTps(${t.id})"></td>
+        <td><input class="form-input" id="tps-sub-${t.id}" value="${t.sub || ''}" oninput="autoSaveTps(${t.id})"></td>
+        <td><button class="btn btn-primary btn-sm" onclick="saveTpsNow(${t.id})">💾</button></td>
+      </tr>`).join('');
+  } catch (e) { showToast('❌ Backend tidak terhubung', 'error'); }
+}
+
+let tpaTimers = {};
+function autoSaveTpa(key) {
+  clearTimeout(tpaTimers[key]);
+  tpaTimers[key] = setTimeout(async () => {
+    const value = document.getElementById('tpa-' + key).value;
+    try {
+      await apiFetch('/api/admin/tpa/' + key, { method:'PUT', body: JSON.stringify({ value }) });
+      showSaved();
+    } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+  }, 800);
+}
+
+let tpsTimers = {};
+function autoSaveTps(id) {
+  clearTimeout(tpsTimers[id]);
+  tpsTimers[id] = setTimeout(() => saveTpsNow(id), 800);
+}
+async function saveTpsNow(id) {
+  const payload = {
+    nama: document.getElementById('tps-nama-'+id).value,
+    jumlah: +document.getElementById('tps-jml-'+id).value,
+    label: document.getElementById('tps-lbl-'+id).value,
+    sub: document.getElementById('tps-sub-'+id).value,
+    icon: '🏠'
+  };
+  try {
+    await apiFetch('/api/admin/fasilitas-tps/' + id, { method:'PUT', body: JSON.stringify(payload) });
+    showSaved();
+  } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// JADWAL
+// ═══════════════════════════════════════════════════════════
+async function loadJadwal() {
+  try {
+    const data = await apiFetch('/api/admin/jadwal');
+    document.getElementById('jadwalTableBody').innerHTML = data.map(j => `
+      <tr>
+        <td><strong>${j.hari}</strong></td>
+        <td style="font-size:0.8rem;max-width:260px;">${j.wilayah.split('|').join(', ')}</td>
+        <td style="font-size:0.78rem;">${j.jam}</td>
+        <td><code style="font-size:0.72rem;background:#f5f5f5;padding:2px 6px;border-radius:4px;">${j.kecamatan || '—'}</code></td>
+        <td>
+          <div class="tbl-actions">
+            <button class="btn btn-warning btn-sm" onclick="editJadwal(${j.id},'${j.hari}',\`${j.wilayah.replace(/`/g,'\\`')}\`,'${j.jam}','${j.kecamatan}')">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteJadwal(${j.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (e) { showToast('❌ Backend tidak terhubung', 'error'); }
+}
+
+function openJadwalModal() {
+  document.getElementById('modalJadwalTitle').textContent = 'Tambah Jadwal';
+  document.getElementById('jadwalEditId').value = '';
+  ['j-wilayah','j-jam','j-kec'].forEach(id => document.getElementById(id).value = '');
+  openModal('modalJadwal');
+}
+
+function editJadwal(id, hari, wilayah, jam, kec) {
+  document.getElementById('jadwalEditId').value = id;
+  document.getElementById('j-hari').value = hari;
+  document.getElementById('j-wilayah').value = wilayah.split('|').join('\n');
+  document.getElementById('j-jam').value = jam;
+  document.getElementById('j-kec').value = kec;
+  document.getElementById('modalJadwalTitle').textContent = 'Edit Jadwal';
+  openModal('modalJadwal');
+}
+
+async function saveJadwal() {
+  const id = document.getElementById('jadwalEditId').value;
+  const payload = {
+    hari: document.getElementById('j-hari').value,
+    wilayah: document.getElementById('j-wilayah').value.trim().split('\n').filter(Boolean).join('|'),
+    jam: document.getElementById('j-jam').value,
+    kecamatan: document.getElementById('j-kec').value
+  };
+  try {
+    if (id) {
+      await apiFetch('/api/admin/jadwal/' + id, { method:'PUT', body: JSON.stringify(payload) });
+    } else {
+      await apiFetch('/api/admin/jadwal', { method:'POST', body: JSON.stringify(payload) });
+    }
+    showToast('✅ Jadwal tersimpan'); closeModal('modalJadwal'); loadJadwal();
+  } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+}
+
+async function deleteJadwal(id) {
+  if (!confirm('Hapus jadwal ini?')) return;
+  try {
+    await apiFetch('/api/admin/jadwal/' + id, { method:'DELETE' });
+    showToast('🗑️ Jadwal dihapus'); loadJadwal();
+  } catch (e) { showToast('❌ Gagal hapus', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// DATA SAMPAH
+// ═══════════════════════════════════════════════════════════
+async function loadDataSampah() {
+  try {
+    const data = await apiFetch('/api/admin/data-sampah');
+    document.getElementById('dataSampahCards').innerHTML = data.map(d => `
+      <div class="editable-card">
+        <div class="editable-card-label">📍 ${d.kecamatan}</div>
+        <div class="form-row triple">
+          <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="ds-lbl-${d.id}" value="${d.label}" oninput="autoSaveDs(${d.id})"></div>
+          <div class="form-group"><label class="form-label">Populasi Estimasi</label><input class="form-input" type="number" id="ds-pop-${d.id}" value="${d.populasi_estimasi}" oninput="autoSaveDs(${d.id})"></div>
+          <div class="form-group"><label class="form-label">% Kelola</label><input class="form-input" type="number" step="0.01" id="ds-pct-${d.id}" value="${d.persen_kelola}" oninput="autoSaveDs(${d.id})"></div>
+        </div>
+        <div class="form-row triple">
+          <div class="form-group"><label class="form-label">Total Timbulan (Ton/Hari)</label><input class="form-input" type="number" step="0.01" id="ds-tot-${d.id}" value="${d.timbulan_total}" oninput="autoSaveDs(${d.id})"></div>
+          <div class="form-group"><label class="form-label">Layanan UPTD</label><input class="form-input" type="number" step="0.01" id="ds-uptd-${d.id}" value="${d.layanan_uptd}" oninput="autoSaveDs(${d.id})"></div>
+          <div class="form-group"><label class="form-label">Bank Sampah</label><input class="form-input" type="number" step="0.01" id="ds-bs-${d.id}" value="${d.bank_sampah}" oninput="autoSaveDs(${d.id})"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">TPST (Ton/Hari)</label><input class="form-input" type="number" step="0.01" id="ds-tpst-${d.id}" value="${d.tpst}" oninput="autoSaveDs(${d.id})"></div>
+          <div class="form-group"><label class="form-label">Tidak Terkelola</label><input class="form-input" type="number" step="0.01" id="ds-ttk-${d.id}" value="${d.tidak_terkelola}" oninput="autoSaveDs(${d.id})"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Catatan</label><textarea class="form-textarea" id="ds-cat-${d.id}" oninput="autoSaveDs(${d.id})">${d.catatan}</textarea></div>
+        <div style="margin-top:16px;">
+          <div class="form-label" style="margin-bottom:8px;">Visualisasi Proporsi</div>
+          <div class="mini-chart">
+            <div class="mini-bar-item"><div class="mini-bar-label">🚛 Layanan UPTD</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${(d.layanan_uptd/d.timbulan_total*100).toFixed(1)}%;"></div></div><div class="mini-bar-val">${(d.layanan_uptd/d.timbulan_total*100).toFixed(1)}%</div></div>
+            <div class="mini-bar-item"><div class="mini-bar-label">🏦 Bank Sampah</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${(d.bank_sampah/d.timbulan_total*100).toFixed(1)}%;"></div></div><div class="mini-bar-val">${(d.bank_sampah/d.timbulan_total*100).toFixed(1)}%</div></div>
+            <div class="mini-bar-item"><div class="mini-bar-label">⚠️ Tidak Terkelola</div><div class="mini-bar-track"><div class="mini-bar-fill danger" style="width:${(d.tidak_terkelola/d.timbulan_total*100).toFixed(1)}%;"></div></div><div class="mini-bar-val">${(d.tidak_terkelola/d.timbulan_total*100).toFixed(1)}%</div></div>
+          </div>
+        </div>
+      </div>`).join('');
+  } catch (e) { document.getElementById('dataSampahCards').innerHTML = '<p style="color:#e53e3e;">Backend tidak terhubung</p>'; }
+}
+
+let dsTimers = {};
+function autoSaveDs(id) {
+  clearTimeout(dsTimers[id]);
+  dsTimers[id] = setTimeout(async () => {
+    const payload = {
+      label: document.getElementById('ds-lbl-'+id).value,
+      populasi_estimasi: +document.getElementById('ds-pop-'+id).value,
+      persen_kelola: +document.getElementById('ds-pct-'+id).value,
+      timbulan_total: +document.getElementById('ds-tot-'+id).value,
+      layanan_uptd: +document.getElementById('ds-uptd-'+id).value,
+      bank_sampah: +document.getElementById('ds-bs-'+id).value,
+      tpst: +document.getElementById('ds-tpst-'+id).value,
+      tidak_terkelola: +document.getElementById('ds-ttk-'+id).value,
+      catatan: document.getElementById('ds-cat-'+id).value
+    };
+    try {
+      await apiFetch('/api/admin/data-sampah/' + id, { method:'PUT', body: JSON.stringify(payload) });
+      showSaved();
+    } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+  }, 1000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// KELURAHAN
+// ═══════════════════════════════════════════════════════════
+async function loadKelurahan() {
+  try {
+    const data = await apiFetch('/api/admin/kelurahan');
+    const banawa = data.filter(k => k.kecamatan === 'banawa');
+    const banawaT = data.filter(k => k.kecamatan === 'banawa_tengah');
+    const renderRows = (list, tbodyId) => {
+      document.getElementById(tbodyId).innerHTML = list.map(k => `
+        <tr>
+          <td><input class="form-input" id="kel-${k.id}" value="${k.nama}" style="width:100%;"></td>
+          <td>
+            <div class="tbl-actions">
+              <button class="btn btn-primary btn-sm" onclick="saveKelEdit(${k.id})">💾</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteKel(${k.id})">🗑️</button>
+            </div>
+          </td>
+        </tr>`).join('');
+    };
+    renderRows(banawa, 'kelBanawa');
+    renderRows(banawaT, 'kelBanawaT');
+  } catch (e) { showToast('❌ Backend tidak terhubung', 'error'); }
+}
+
+function openKelModal() { openModal('modalKel'); }
+
+async function saveKelurahan() {
+  const kecamatan = document.getElementById('k-kec').value;
+  const nama = document.getElementById('k-nama').value;
+  if (!nama) return;
+  try {
+    await apiFetch('/api/admin/kelurahan', { method:'POST', body: JSON.stringify({ kecamatan, nama }) });
+    showToast('✅ Kelurahan ditambahkan'); closeModal('modalKel'); loadKelurahan();
+    document.getElementById('k-nama').value = '';
+  } catch (e) { showToast('❌ Gagal', 'error'); }
+}
+
+async function saveKelEdit(id) {
+  const nama = document.getElementById('kel-' + id).value;
+  try {
+    await apiFetch('/api/admin/kelurahan/' + id, { method:'PUT', body: JSON.stringify({ nama }) });
+    showSaved();
+  } catch (e) { showToast('❌ Gagal', 'error'); }
+}
+
+async function deleteKel(id) {
+  if (!confirm('Hapus kelurahan ini?')) return;
+  try {
+    await apiFetch('/api/admin/kelurahan/' + id, { method:'DELETE' });
+    showToast('🗑️ Dihapus'); loadKelurahan();
+  } catch (e) { showToast('❌ Gagal hapus', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// EDUKASI
+// ═══════════════════════════════════════════════════════════
+async function loadEdukasi() {
+  try {
+    const data = await apiFetch('/api/admin/edukasi');
+    document.getElementById('eduTableBody').innerHTML = data.map(e => `
+      <tr>
+        <td style="font-size:1.4rem;">${e.icon}</td>
+        <td><span class="badge badge-aktif">${e.tag}</span></td>
+        <td><strong>${e.title}</strong></td>
+        <td style="font-size:0.78rem;color:var(--text-mid);max-width:280px;">${e.desc.substring(0,80)}${e.desc.length > 80 ? '...' : ''}</td>
+        <td>
+          <div class="tbl-actions">
+            <button class="btn btn-warning btn-sm" onclick="editEdu(${e.id},'${e.type}','${e.icon}','${e.tag.replace(/'/g,"\\'")}','${e.title.replace(/'/g,"\\'")}',\`${e.desc.replace(/`/g,'\\`')}\`)">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteEdu(${e.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (e) { showToast('❌ Backend tidak terhubung', 'error'); }
+}
+
+function openEduModal() {
+  document.getElementById('modalEduTitle').textContent = 'Tambah Konten Edukasi';
+  document.getElementById('eduEditId').value = '';
+  ['e-type','e-icon','e-tag','e-title','e-desc'].forEach(id => document.getElementById(id).value = '');
+  openModal('modalEdu');
+}
+
+function editEdu(id, type, icon, tag, title, desc) {
+  document.getElementById('eduEditId').value = id;
+  document.getElementById('e-type').value = type;
+  document.getElementById('e-icon').value = icon;
+  document.getElementById('e-tag').value = tag;
+  document.getElementById('e-title').value = title;
+  document.getElementById('e-desc').value = desc;
+  document.getElementById('modalEduTitle').textContent = 'Edit Konten Edukasi';
+  openModal('modalEdu');
+}
+
+async function saveEdu() {
+  const id = document.getElementById('eduEditId').value;
+  const payload = {
+    type: document.getElementById('e-type').value,
+    icon: document.getElementById('e-icon').value,
+    tag: document.getElementById('e-tag').value,
+    title: document.getElementById('e-title').value,
+    desc: document.getElementById('e-desc').value
+  };
+  try {
+    if (id) {
+      await apiFetch('/api/admin/edukasi/' + id, { method:'PUT', body: JSON.stringify(payload) });
+    } else {
+      await apiFetch('/api/admin/edukasi', { method:'POST', body: JSON.stringify(payload) });
+    }
+    showToast('✅ Konten tersimpan'); closeModal('modalEdu'); loadEdukasi();
+  } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+}
+
+async function deleteEdu(id) {
+  if (!confirm('Hapus konten edukasi ini?')) return;
+  try {
+    await apiFetch('/api/admin/edukasi/' + id, { method:'DELETE' });
+    showToast('🗑️ Dihapus'); loadEdukasi();
+  } catch (e) { showToast('❌ Gagal hapus', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// KONTAK
+// ═══════════════════════════════════════════════════════════
+async function loadKontak() {
+  try {
+    const data = await apiFetch('/api/admin/kontak');
+    document.getElementById('kontakGrid').innerHTML = data.map(d => `
+      <div class="editable-card">
+        <div class="editable-card-label">${d.key}</div>
+        <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="k-lbl-${d.key}" value="${d.label}" oninput="autoSaveKontak('${d.key}')"></div>
+        <div class="form-group" style="margin-top:8px;"><label class="form-label">Nilai</label><input class="form-input" id="k-val-${d.key}" value="${d.value}" oninput="autoSaveKontak('${d.key}')"></div>
+      </div>`).join('');
+  } catch (e) { document.getElementById('kontakGrid').innerHTML = '<p style="color:#e53e3e;">Backend tidak terhubung</p>'; }
+}
+
+let kontakTimers = {};
+function autoSaveKontak(key) {
+  clearTimeout(kontakTimers[key]);
+  kontakTimers[key] = setTimeout(async () => {
+    const value = document.getElementById('k-val-' + key).value;
+    const label = document.getElementById('k-lbl-' + key).value;
+    try {
+      await apiFetch('/api/admin/kontak/' + key, { method:'PUT', body: JSON.stringify({ value, label }) });
+      showSaved();
+    } catch (e) { showToast('❌ Gagal simpan', 'error'); }
+  }, 800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════
+function updateApiPreview() {
+  const url = document.getElementById('settingApiUrl').value;
+  document.getElementById('apiUrlPreview').textContent = url + '/api/public/all';
+}
+
+document.getElementById('settingApiUrl')?.addEventListener('input', updateApiPreview);
+
+function saveSettings() {
+  API_BASE = document.getElementById('settingApiUrl').value.trim().replace(/\/$/, '');
+  ADMIN_TOKEN = document.getElementById('settingToken').value.trim();
+  localStorage.setItem('sipas_api_base', API_BASE);
+  localStorage.setItem('sipas_admin_token', ADMIN_TOKEN);
+  showToast('✅ Pengaturan tersimpan');
+  updateApiPreview();
+}
+
+async function testConnection() {
+  const el = document.getElementById('connResult');
+  el.textContent = '⏳ Menguji koneksi...';
+  try {
+    const data = await apiFetch('/api/admin/dashboard-stats');
+    el.innerHTML = `<span style="color:var(--green-bright);">✅ Terhubung! Total aduan: ${data.totalAduan}</span>`;
+  } catch (e) {
+    el.innerHTML = `<span style="color:#e53e3e;">❌ Tidak dapat terhubung ke ${API_BASE}</span>`;
+  }
+}
+</script>
+</body>
+</html>
